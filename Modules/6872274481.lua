@@ -7,6 +7,7 @@
     Version: 1.5
     discord.gg/render
 
+	render red config by maxlasertech :fire:
 ]]
 shared.renderred = true
 local GuiLibrary = shared.GuiLibrary
