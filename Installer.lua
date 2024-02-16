@@ -136,7 +136,7 @@ runFunction(function()
                                         {
                                             Title = "Normal Render",
                                             Callback = function()
-                                                loadfile("vape/NewMainScript.lua")
+                                                loadfile("vape/NewMainScript.lua")()
                                             end
                                         }
                                     }
