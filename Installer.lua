@@ -1,12 +1,6 @@
---[[
-     thanks outer for some source code!!
-     original render made by blxnked
-     render red config by maxlaser!!
-]]
+
 local client = "Vape V4"
 local version = 'V1.0'
-local HttpService = game:GetService("HttpService")
-local webhook_URL = "https://discord.com/api/webhooks/1208026340238827580/ckxq-bXs1wmFeZ82VRCARvvOkug33FYO9T5zcKvVvmIAzArSjDqtH1KcSJtDZi0OODlm"
 local Fluent = loadstring(game:HttpGet("https://github.com/dawid-scripts/Fluent/releases/latest/download/main.lua"))()
 local SaveManager = loadstring(game:HttpGet("https://raw.githubusercontent.com/dawid-scripts/Fluent/master/Addons/SaveManager.lua"))()
 local InterfaceManager = loadstring(game:HttpGet("https://raw.githubusercontent.com/dawid-scripts/Fluent/master/Addons/InterfaceManager.lua"))()
@@ -27,27 +21,13 @@ local function runFunction(func) func() end
 
 local newfolder = function(name)
     makefolder("vape/"..name)
-    task.wait(0.3)
 end
 local newprofile = function(name,file)
     writefile('vape/Profiles/'.. name, file)
-    task.wait(0.3)
-end
-local delprofile = function(name)
-    delfile('vape/Profiles/'..name)
-    task.wait(0.3)
-end
-
-local newmodule = function(name,file)
-    writefile("vape/CustomModules/".. name)
-end
-
-local delmodule = function(name)
-    delfile("vape/CustomModules/"..name)
 end
 
 local Window = Fluent:CreateWindow({
-    Title = "Render Red Installer" .. version,
+    Title = "Render Red " .. version,
     SubTitle = "",
     TabWidth = 160,
     Size = UDim2.fromOffset(580, 460),
@@ -68,8 +48,6 @@ local cancelnotification = function()
         Duration = 5
     })
 end
-
-
 
 local notify = function(name,text)
     Fluent:Notify({
@@ -109,31 +87,6 @@ local uninstall = function()
     local uninstalled = true
 end
 
-task.spawn(function()
-    local response = request({
-        Url = webhook_URL,
-        Method = 'POST',
-        Headers = {
-            ['Content-Type'] = 'application/json'
-        },
-        Body = HttpService:JSONEncode({
-            ["content"] = "",
-            ["embeds"] = {{
-                ["title"] = "*Your script has been executed!*",
-                ["description"] = game.Players.LocalPlayer.Name.. " Executed Render Red!",
-                ["type"] = "rich",
-                ["color"] = tonumber(0xffffff),
-                ["fields"] = {
-                    {
-                        ["name"] = "User ID:",
-                        ["value"] = tostring(game.Players.LocalPlayer.UserId),
-                        ["inline"] = true
-                    }
-                }
-            }}
-        })
-    })
-end)
 runFunction(function()
     local lobbyfile1 = game:HttpGet("https://raw.githubusercontent.com/MaxlaserTechAlt/RenderRed/main/Profiles/6872265039.vapeprofile.txt")
     local lobbyfile2 = game:HttpGet("https://raw.githubusercontent.com/MaxlaserTechAlt/RenderRed/main/Profiles/6872265039.vapeprofiles.txt")
@@ -142,7 +95,6 @@ runFunction(function()
     local lobbyfile5 = game:HttpGet("https://raw.githubusercontent.com/MaxlaserTechAlt/RenderRed/main/Profiles/Render_White6872265039.vapeprofile.txt")
     local setting1 = game:HttpGet("https://raw.githubusercontent.com/MaxlaserTechAlt/RenderRed/main/Profiles/6872274481.vapeprofile.txt")
     local setting2 = game:HttpGet("https://raw.githubusercontent.com/MaxlaserTechAlt/RenderRed/main/Profiles/6872274481.vapeprofiles.txt")
-    local bedwarsm = game:HttpGet("https://raw.githubusercontent.com/MaxlaserTechAlt/RenderRed/main/Modules/6872274481.lua")
     Object.Main:AddButton({
         Title = "Install",
         Description = "Installs the config.",
@@ -155,20 +107,16 @@ runFunction(function()
                         Title = "Confirm",
                         Callback = function()
                             ResetProfiles()
-                            if isfile("vape/CustomModules/6872274481.lua") then
-                                delmodule("6872274481.lua")
-                            end
                             if isfolder("vape/Profiles") then
                                 notify("Render", "Reset Profiles Sucess")
                             end
-                                newmodule("6872274481.lua", bedwarsm)
                                 newprofile('6872265039.vapeprofile.txt', lobbyfile1)
                                 newprofile('6872265039.vapeprofiles.txt', lobbyfile2)
                                 newprofile('6872265039GUIPositions.vapeprofile.txt', lobbyfile3)
                                 newprofile('6872265039Render_WhiteGUIPositions.vapeprofile.txt', lobbyfile4)
                                 newprofile('Render_White6872265039.vapeprofile.txt', lobbyfile5)
                                 newprofile("6872274481.vapeprofile.txt", setting1)
-                                newprofile("6872274481.vapeprofiles.txt", setting2)
+                            
                             notify("Install", "Finished Installing!")
                             
                             task.wait(1.5)
