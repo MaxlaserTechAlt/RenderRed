@@ -10075,11 +10075,15 @@ runFunction(function()
 		Name = 'Remove MobileUi',
 		Function = function(calling)
 			if calling then 
+				task.spawn(function()
 				lplr.PlayerGui.MobileUI.Enabled = false
 				lplr.PlayerGui.AbilityButtons.Enabled = false
+				end)
 			else
+				task.spawn(function()
 				lplr.PlayerGui.MobileUI.Enabled = true
 				lplr.PlayerGui.AbilityButtons.Enabled = true
+				end)
 			end
 		end
 	})
