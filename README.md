@@ -6,3 +6,5 @@ loadstring(game:HttpGet("https://raw.githubusercontent.com/MaxlaserTechAlt/Rende
 ```
 
 ## Thanks Outer For Some Source He's very cool guys🔥
+### Render Red Server: https://discord.gg/qH2WC6PCFk
+### Normal Render Server: https://discord.gg/render
