@@ -8,7 +8,7 @@
     discord.gg/render
 
 ]]
-shared.renderred = true
+
 local GuiLibrary = shared.GuiLibrary
 local httpService = game:GetService('HttpService')
 local teleportService = game:GetService('TeleportService')
