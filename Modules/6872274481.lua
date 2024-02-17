@@ -8,7 +8,7 @@
     discord.gg/render
 
 ]]
-shared.renderred = true
+--//why did i add this LOL shared.renderred = true
 local GuiLibrary = shared.GuiLibrary
 local httpService = game:GetService('HttpService')
 local teleportService = game:GetService('TeleportService')
@@ -848,8 +848,8 @@ local function AllNearPosition(distance, amount, sortfunction, prediction)
 	end
 	return returnedplayer
 end
-
---pasted from old source since gui code is hard
+local MobileUI = lplr.PlayerGui.MobileUI
+--pasted from old source since gui code is hard --// crazy
 local function CreateAutoHotbarGUI(children2, argstable)
 	local buttonapi = {}
 	buttonapi['Hotbars'] = {}
@@ -10069,16 +10069,17 @@ runFunction(function()
 	ReachCorner.CornerRadius = UDim.new(0, 4)
 	ReachCorner.Parent = ReachLabel
 end)
+
 runFunction(function()
 	local MobileUIDel = {}
 	MobileUIDel = GuiLibrary.CreateLegitModule({
 		Name = 'Remove MobileUi',
 		Function = function(calling)
 			if calling then 
-				lplr.PlayerGui.MobileUI.Enabled = false
+				MobileUI.Enabled = false
 				lplr.PlayerGui.AbilityButtons.Enabled = false
 			else
-				lplr.PlayerGui.MobileUI.Enabled = true
+				MobileUI.Enabled = true
 				lplr.PlayerGui.AbilityButtons.Enabled = true
 			end
 		end
