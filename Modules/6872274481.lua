@@ -3604,7 +3604,7 @@ runFunction(function()
 					task.spawn(autoBlockLoop)
 				end
                 task.spawn(function()
-						repeat task.wait()
+						RunLoops:BindToRenderStep("AuraAttack", function()
 							vapeTargetInfo.Targets.Killaura = nil
 							local plrs = AllNearPosition(killaurarange.Value, 10, killaurasortmethods[killaurasortmethod.Value], true)
 							local firstPlayerNear
@@ -3711,11 +3711,12 @@ runFunction(function()
 								local attacked = killauratarget.Enabled and plrs[i] or nil
 								v.Adornee = attacked and ((not killauratargethighlight.Enabled) and attacked.RootPart or (not GuiLibrary.ObjectsThatCanBeSaved.ChamsOptionsButton.Api.Enabled) and attacked.Character or nil)
 							end
-						until (not Killaura.Enabled)
+						end)
 				end)
             else
 				vapeTargetInfo.Targets.Killaura = nil
 				RunLoops:UnbindFromHeartbeat('Killaura')
+				RunLoops:UnbindFromRenderStep("AuraAttack")
                 killauraNearPlayer = false
 				for i,v in next, (killauraboxes) do v.Adornee = nil end
 				if killauraaimcirclepart then killauraaimcirclepart.Parent = nil end
