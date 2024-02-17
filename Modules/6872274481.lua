@@ -10084,7 +10084,23 @@ runFunction(function()
 		end
 	})
 end)
-
+runFunction(function()
+	local MobileUIDel = {}
+	MobileUIDel = GuiLibrary.CreateLegitModule({
+		Name = 'Remove EffectHud',
+		Function = function(calling)
+			if calling then 
+			task.spawn(function()
+				lplr.PlayerGui.StatusEffectHudScreen.Enabled = false
+			end)
+			else
+			task.spawn(function()
+				lplr.PlayerGui.StatusEffectHudScreen.Enabled = true
+			end)	
+			end
+		end
+	})
+end)
 table.insert(vapeConnections, replicatedStorageService['events-@easy-games/game-core:shared/game-core-networking@getEvents.Events'].abilityUsed.OnClientEvent:Connect(function(character, ability)
 	local player = playersService:GetPlayerFromCharacter(character) 
 	bedwarsStore.usedAbilities[ability] = {Player = player, lastused = tick()}
