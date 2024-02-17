@@ -6802,7 +6802,7 @@ runFunction(function()
 	})
 end)
 
---[[runFunction(function()
+runFunction(function()
 	local performed = false
 	GuiLibrary.ObjectsThatCanBeSaved.RenderWindow.Api.CreateOptionsButton({
 		Name = 'UICleanup',
@@ -6871,7 +6871,7 @@ end)
 			end
 		end
 	})
-end)]]
+end)
 
 runFunction(function()
 	local AntiAFK = {}
