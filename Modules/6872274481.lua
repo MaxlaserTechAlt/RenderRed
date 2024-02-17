@@ -8,7 +8,7 @@
     discord.gg/render
 
 ]]
---//why did i add this LOL shared.renderred = true
+shared.renderred = true
 local GuiLibrary = shared.GuiLibrary
 local httpService = game:GetService('HttpService')
 local teleportService = game:GetService('TeleportService')
@@ -488,7 +488,7 @@ local function getSpeed()
 			speed = speed + 12
 		end
 		if type(bedwarsStore.zephyrOrb) == 'number' and bedwarsStore.zephyrOrb > 0 then 
-			speed = speed + (RenderStore.acbypass and 28 or 23.8)
+			speed = speed + (RenderStore.acbypass and 28 or 23.75)
 		end
 	end
 	return speed
@@ -848,8 +848,8 @@ local function AllNearPosition(distance, amount, sortfunction, prediction)
 	end
 	return returnedplayer
 end
-local MobileUI = lplr.PlayerGui.MobileUI
---pasted from old source since gui code is hard --// crazy
+
+--pasted from old source since gui code is hard
 local function CreateAutoHotbarGUI(children2, argstable)
 	local buttonapi = {}
 	buttonapi['Hotbars'] = {}
@@ -8463,7 +8463,7 @@ runFunction(function()
 			if calling then 
 				table.insert(AutoToxic.Connections, vapeEvents.BedwarsBedBreak.Event:Connect(function(bedTable)
 					if AutoToxicBedDestroyed.Enabled and bedTable.brokenBedTeam.id == lplr:GetAttribute('Team') then
-						local custommsg = #AutoToxicPhrases6.ObjectList > 0 and AutoToxicPhrases6.ObjectList[math.random(1, #AutoToxicPhrases6.ObjectList)] or 'Who needs a bed when you got Render <name>? | renderintents.xyz'
+						local custommsg = #AutoToxicPhrases6.ObjectList > 0 and AutoToxicPhrases6.ObjectList[math.random(1, #AutoToxicPhrases6.ObjectList)] or 'Who needs a bed when you got Render Red <name>? | renderintents.xyz'
 						if custommsg then
 							custommsg = custommsg:gsub('<name>', (bedTable.player.DisplayName or bedTable.player.Name))
 						end
@@ -8494,9 +8494,9 @@ runFunction(function()
 							end
 						else
 							if killer == lplr and AutoToxicFinalKill.Enabled then 
-								local custommsg = #AutoToxicPhrases2.ObjectList > 0 and AutoToxicPhrases2.ObjectList[math.random(1, #AutoToxicPhrases2.ObjectList)] or '<name> things could have ended for you so differently, if you\'ve used Render. | renderintents.xyz'
+								local custommsg = #AutoToxicPhrases2.ObjectList > 0 and AutoToxicPhrases2.ObjectList[math.random(1, #AutoToxicPhrases2.ObjectList)] or '<name> things could have ended for you so differently, if you\'ve used Render Red. | renderintents.xyz'
 								if custommsg == lastsaid then
-									custommsg = #AutoToxicPhrases2.ObjectList > 0 and AutoToxicPhrases2.ObjectList[math.random(1, #AutoToxicPhrases2.ObjectList)] or '<name> things could have ended for you so differently, if you\'ve used Render. | renderintents.xyz'
+									custommsg = #AutoToxicPhrases2.ObjectList > 0 and AutoToxicPhrases2.ObjectList[math.random(1, #AutoToxicPhrases2.ObjectList)] or '<name> things could have ended for you so differently, if you\'ve used Render Red. | renderintents.xyz'
 								else
 									lastsaid = custommsg
 								end
@@ -8515,7 +8515,7 @@ runFunction(function()
 							sendmessage('gg')
 						end
 						if AutoToxicWin.Enabled then
-							sendmessage(#AutoToxicPhrases.ObjectList > 0 and AutoToxicPhrases.ObjectList[math.random(1, #AutoToxicPhrases.ObjectList)] or 'Render is simply better everyone. | renderintents.xyz')
+							sendmessage(#AutoToxicPhrases.ObjectList > 0 and AutoToxicPhrases.ObjectList[math.random(1, #AutoToxicPhrases.ObjectList)] or 'Render Red is simply better everyone. | renderintents.xyz')
 						end
 					end
 				end))
@@ -10069,39 +10069,22 @@ runFunction(function()
 	ReachCorner.CornerRadius = UDim.new(0, 4)
 	ReachCorner.Parent = ReachLabel
 end)
-
 runFunction(function()
 	local MobileUIDel = {}
 	MobileUIDel = GuiLibrary.CreateLegitModule({
 		Name = 'Remove MobileUi',
 		Function = function(calling)
 			if calling then 
-				MobileUI.Enabled = false
+				lplr.PlayerGui.MobileUI.Enabled = false
 				lplr.PlayerGui.AbilityButtons.Enabled = false
 			else
-				MobileUI.Enabled = true
+				lplr.PlayerGui.MobileUI.Enabled = true
 				lplr.PlayerGui.AbilityButtons.Enabled = true
 			end
 		end
 	})
 end)
-runFunction(function()
-	local MobileUIDel = {}
-	MobileUIDel = GuiLibrary.CreateLegitModule({
-		Name = 'Remove EffectHud',
-		Function = function(calling)
-			if calling then 
-			task.spawn(function()
-				lplr.PlayerGui.StatusEffectHudScreen.Enabled = false
-			end)
-			else
-			task.spawn(function()
-				lplr.PlayerGui.StatusEffectHudScreen.Enabled = true
-			end)	
-			end
-		end
-	})
-end)
+
 table.insert(vapeConnections, replicatedStorageService['events-@easy-games/game-core:shared/game-core-networking@getEvents.Events'].abilityUsed.OnClientEvent:Connect(function(character, ability)
 	local player = playersService:GetPlayerFromCharacter(character) 
 	bedwarsStore.usedAbilities[ability] = {Player = player, lastused = tick()}
@@ -14106,6 +14089,88 @@ runLunar(function()
 	})
 end)
 
+runFunction(function()
+    local AntiCrash = {}
+	local AntiCrashMode = {Value = 'Infinite'}
+	local AntiCrashPing = {Value = 5000}
+	local AntiCrashFps = {Value = 5}
+	local AntiCrashAbort = {Value = 10}
+    AntiCrash = GuiLibrary.ObjectsThatCanBeSaved.UtilityWindow.Api.CreateOptionsButton({
+        Name = 'AntiCrash',
+		HoverText = 'Does a certain action\nwhen about to crash',
+        Function = function(callback)
+            if callback then
+                task.spawn(function()
+					local wasHigh = false
+					repeat task.wait()
+						if RenderStore.ping > AntiCrashPing.Value or game:GetService('Stats').PerformanceStats.Fps:GetValue() < AntiCrashFps.Value then
+							warningNotification('AntiCrash', 'Crashing detected. Starting action. Disable the module to abort!', AntiCrashAbort.Value)
+							task.wait(AntiCrashAbort.Value)
+							if not AntiCrash.Enabled then return end
+							if AntiCrashMode.Value == 'Infinite' then
+								if not GuiLibrary.ObjectsThatCanBeSaved.InfiniteFlyOptionsButton.Api.Enabled then
+									GuiLibrary.ObjectsThatCanBeSaved.InfiniteFlyOptionsButton.Api.ToggleButton(true)
+									wasHigh = true
+								end
+							elseif AntiCrashMode.Value == 'Lobby' then
+								local playerId = playersService:GetPlayerByUserId(lplr.UserId)
+								teleportService:Teleport(6872265039, playerId)
+							else
+								game:Shutdown()
+							end
+						elseif RenderStore.ping < AntiCrashPing.Value then
+							if GuiLibrary.ObjectsThatCanBeSaved.InfiniteFlyOptionsButton.Api.Enabled and wasHigh then
+								GuiLibrary.ObjectsThatCanBeSaved.InfiniteFlyOptionsButton.Api.ToggleButton(true)
+								wasHigh = false
+							end
+						elseif game:GetService('Stats').PerformanceStats.Fps:GetValue() < AntiCrashFps.Value and wasHigh then
+							if GuiLibrary.ObjectsThatCanBeSaved.InfiniteFlyOptionsButton.Api.Enabled and wasHigh then
+								GuiLibrary.ObjectsThatCanBeSaved.InfiniteFlyOptionsButton.Api.ToggleButton(true)
+								wasHigh = false
+							end
+						end
+					until not AntiCrash.Enabled
+				end)
+			else
+				wasHigh = false
+            end
+        end,
+		ExtraText = function()
+			return AntiCrashMode.Value
+		end
+    })
+	AntiCrashMode = AntiCrash.CreateDropdown({
+        Name = 'Action',
+        List = {
+            'Infinite',
+            'Lobby',
+			'Shutdown'
+        },
+		Value = 'Infinite',
+        Function = function() end,
+    })
+	AntiCrashPing = AntiCrash.CreateSlider({
+        Name = 'Min Ping',
+        Min = 1000,
+        Max = 10000,
+        Function = function() end,
+        Default = 5000
+    })
+	AntiCrashFps = AntiCrash.CreateSlider({
+        Name = 'Max Fps',
+        Min = 1,
+        Max = 20,
+        Function = function() end,
+        Default = 5
+    })
+	AntiCrashAbort = AntiCrash.CreateSlider({
+        Name = 'Abort Time',
+        Min = 5,
+        Max = 15,
+        Function = function() end,
+        Default = 10
+    })
+end)
 
 runFunction(function()
     local AutoSkywars = {}
@@ -14142,4 +14207,144 @@ runFunction(function()
 	})
 end)
 
-
+runFunction(function()
+    local FastFly = {}
+    local FastFlyMode = {Value = 'Velocity'}
+	local FastFlyMode2 = {Value = 'CFrame'}
+    local FastFlyMode1 = {Value = 'Sin'}
+    local FastFlySpeed = {Value = 8}
+    local FastFlyAmplitude = {Value = 17}
+    local FastFlyFrequency = {Value = 13}
+    local FastFlyMultiplier = {Value = 1.3}
+	local ffspeed = 0
+    --[[local function charvelo(mode, meth)
+        return lplr.Character.HumanoidRootPart[mode] = lplr.Character.HumanoidRootPart[mode] + vec3(
+            lplr.Character.HumanoidRootPart[mode].X,
+            2 + math[meth](ffspeed / FastFlySpeed.Value) * FastFlyAmplitude.Value,
+            lplr.Character.HumanoidRootPart[mode].Z
+        )
+    end]]
+	local function charvelo1()
+        lplr.Character.HumanoidRootPart.Velocity = lplr.Character.HumanoidRootPart.Velocity + vec3(lplr.Character.HumanoidRootPart.Velocity.X,
+            2 + math.sin(ffspeed / FastFlySpeed.Value) * FastFlyAmplitude.Value,
+            lplr.Character.HumanoidRootPart.Velocity.Z
+        )
+    end
+	local function charvelo2()
+        lplr.Character.HumanoidRootPart.Velocity = lplr.Character.HumanoidRootPart.Velocity + vec3(
+            lplr.Character.HumanoidRootPart.Velocity.X,
+            2 + math.cos(ffspeed / FastFlySpeed.Value) * FastFlyAmplitude.Value,
+            lplr.Character.HumanoidRootPart.Velocity.Z
+        )
+    end
+	local function charcf1()
+        lplr.Character.HumanoidRootPart.CFrame = lplr.Character.HumanoidRootPart.CFrame + vec3(
+            lplr.Character.HumanoidRootPart.CFrame.X,
+            2 + math.sin(ffspeed / FastFlySpeed.Value) * FastFlyAmplitude.Value,
+            lplr.Character.HumanoidRootPart.CFrame.Z
+        )
+    end
+	local function charcf2()
+        lplr.Character.HumanoidRootPart.CFrame = lplr.Character.HumanoidRootPart.CFrame + vec3(
+            lplr.Character.HumanoidRootPart.CFrame.X,
+            2 + math.cos(ffspeed / FastFlySpeed.Value) * FastFlyAmplitude.Value,
+            lplr.Character.HumanoidRootPart.CFrame.Z
+        )
+    end
+    FastFly = GuiLibrary.ObjectsThatCanBeSaved.BlatantWindow.Api.CreateOptionsButton({
+        Name = 'FastFly',
+        HoverText = 'Flies fast',
+        Function = function(callback)
+            if callback then
+                table.insert(FastFly.Connections, runService.Heartbeat:Connect(function()
+					if not isAlive(lplr, true) then 
+						return 
+					end
+                    ffspeed = ffspeed + 1
+                    if FastFlyMode.Value == 'Velocity' then
+                        if FastFlyMode1.Value == 'Sin' then
+                            --charvelo('Velocity', 'sin')
+							charvelo1()
+                        else
+                            --charvelo('Velocity', 'cos')
+							charvelo2()
+                        end
+                    else
+                        if FastFlyMode1.Value == 'Sin' then
+                            --charvelo('CFrame', 'sin')
+							charcf1()
+                        else
+                            --charvelo('CFrame', 'cos')
+							charcf2()
+                        end
+                    end
+                    if ffspeed % FastFlyFrequency.Value == 0 then
+						if FastFlyMode2.Value == 'CFrame' then
+                        	lplr.Character.HumanoidRootPart.CFrame += lplr.Character.Humanoid.MoveDirection * (FastFlyMultiplier.Value / 10)
+						else
+							lplr.Character.HumanoidRootPart.Velocity += lplr.Character.Humanoid.MoveDirection * (FastFlyMultiplier.Value / 10)
+						end
+                    end
+                end))
+            end
+        end,
+        ExtraText = function()
+            return FastFlyMode.Value
+        end
+    })
+    FastFlyMode = FastFly.CreateDropdown({
+        Name = 'Bounce Mode',
+        List = {
+            'Velocity',
+            'CFrame'
+        },
+        Value = 'Velocity',
+        Function = function() end
+    })
+	FastFlyMode2 = FastFly.CreateDropdown({
+        Name = 'Speed Mode',
+        List = {
+			'CFrame',
+            'Velocity'
+        },
+        Value = 'CFrame',
+        Function = function() end
+    })
+    FastFlyMode1 = FastFly.CreateDropdown({
+        Name = 'Math',
+        List = {
+            'Sin',
+            'Cos'
+        },
+        Value = 'Sin',
+        Function = function() end
+    })
+    FastFlySpeed = FastFly.CreateSlider({
+        Name = 'Speed',
+        Min = 1,
+        Max = 20,
+        Value = 8,
+        Function = function() end
+    })
+    FastFlyAmplitude = FastFly.CreateSlider({
+        Name = 'Amplitude',
+        Min = 1,
+        Max = 30,
+        Value = 18,
+        Function = function() end
+    })
+    FastFlyFrequency = FastFly.CreateSlider({
+        Name = 'Frequency',
+        Min = 1,
+        Max = 20,
+        Value = 12,
+        Function = function() end
+    })
+    FastFlyMultiplier = FastFly.CreateSlider({
+        Name = 'Multiplier',
+        Min = 5,
+        Max = 20,
+        Value = 13,
+        Function = function() end
+    })
+end)
