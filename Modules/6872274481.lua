@@ -13035,7 +13035,7 @@ runLunar(function()
 	})
 end)
 
-runLunar(function()	
+runLunar(function()
 	local DestroyTag = false
 	local ChangeTag = false
 	local NewTag = {"7GrandDad"}
@@ -13064,14 +13064,14 @@ runLunar(function()
 		end,
         Default = false
 	})
-	DestroyTags = TagChanger.CreateToggle({
+	DestroyTag = TagChanger.CreateToggle({
 		Name = "Remove Tag",
 		Default = false,
 		Function = function(callback)
 			DestroyTag = callback
 		end,
 	})
-	ChangeTags = TagChanger.CreateTextBox({
+	ChangeTag = TagChanger.CreateTextBox({
 		Name = 'Change NameTag',
 		TempText = '7GrandDad',
 		FocusLost = function(enter)
