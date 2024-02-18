@@ -13052,13 +13052,13 @@ runLunar(function()
 								lplr.Character.Head.Nametag = false
 							end
 							if ChangeTag then
-								lplr.Character.Head.DisplayNameContainer.DisplayName.Text = NewTag
+								lplr.Character.Head.Nametag.DisplayNameContainer.DisplayName.Text = NewTag
 							end
 						end)
 					until not TagChanger.Enabled
 				end)
 			else
-				lplr.Character.Head.DisplayNameContainer.DisplayName.Text = lplr.DisplayName
+				lplr.Character.Head.Nametag.DisplayNameContainer.DisplayName.Text = lplr.DisplayName
 				lplr.Character.Head.Nametag = true
 			end
 		end,
