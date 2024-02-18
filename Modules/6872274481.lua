@@ -13038,11 +13038,11 @@ end)
 runLunar(function()	
 	local DestroyTag = false
 	local ChangeTag = false
-	local NewTag = "7GrandDad"
+	local NewTag = {"7GrandDad"}
 	local TagChanger = {Enabled = false}
 	TagChanger = GuiLibrary["ObjectsThatCanBeSaved"]["UtilityWindow"]["Api"]["CreateOptionsButton"]({
 		Name = 'TagChanger',
-        HoverText = 'Changing Your Tag',
+        	HoverText = 'Changing Your Tag',
 		Function = function(callback)
 			if callback then
 				task.spawn(function()
@@ -13073,9 +13073,10 @@ runLunar(function()
 	})
 	ChangeTag = TagChanger.CreateTextBox({
 		Name = 'Change NameTag',
+		TempText = '7GrandDad',
 		FocusLost = function(enter)
 			NewTag = enter
-		end
+		end,
 	})
 end)
 
