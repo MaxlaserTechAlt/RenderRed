@@ -13047,31 +13047,31 @@ runLunar(function()
 			if callback then
 				task.spawn(function()
 					repeat task.wait()
-						pcall(function() 
+						
 							if DestroyTag then
-								lplr.Character.Head.Nametag = false
+								lplr.Character.Head.Nametag:Destroy()
 							end
 							if ChangeTag then
 								lplr.Character.Head.Nametag.DisplayNameContainer.DisplayName.Text = NewTag
 							end
-						end)
-					until not TagChanger.Enabled
+																																																																																																																																																																																																																																																																																																																																														end
+					until (not TagChanger.Enabled)
 				end)
 			else
 				lplr.Character.Head.Nametag.DisplayNameContainer.DisplayName.Text = lplr.DisplayName
-				lplr.Character.Head.Nametag = true
+				
 			end
 		end,
         Default = false
 	})
-	DestroyTag = TagChanger.CreateToggle({
+	DestroyTags = TagChanger.CreateToggle({
 		Name = "Remove Tag",
 		Default = false,
 		Function = function(callback)
 			DestroyTag = callback
 		end,
 	})
-	ChangeTag = TagChanger.CreateTextBox({
+	ChangeTags = TagChanger.CreateTextBox({
 		Name = 'Change NameTag',
 		TempText = '7GrandDad',
 		FocusLost = function(enter)
