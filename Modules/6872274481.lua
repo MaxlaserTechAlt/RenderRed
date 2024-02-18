@@ -13047,14 +13047,14 @@ runLunar(function()
 			if callback then
 				task.spawn(function()
 					repeat task.wait()
-						
+						pcall(function()
 							if DestroyTag then
 								lplr.Character.Head.Nametag:Destroy()
 							end
 							if ChangeTag then
 								lplr.Character.Head.Nametag.DisplayNameContainer.DisplayName.Text = NewTag
 							end
-																																																																																																																																																																																																																																																																																																																																														end
+						end)																																																																																																																																																																																																																																																																																																																																								end
 					until (not TagChanger.Enabled)
 				end)
 			else
