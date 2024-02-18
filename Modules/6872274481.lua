@@ -3604,7 +3604,7 @@ runFunction(function()
 					task.spawn(autoBlockLoop)
 				end
                 task.spawn(function()
-						RunLoops:BindToRenderStep("AuraAttack", function()
+						RunLoops:BindToHeartbeat("AuraAttack", function()
 							vapeTargetInfo.Targets.Killaura = nil
 							local plrs = AllNearPosition(killaurarange.Value, 10, killaurasortmethods[killaurasortmethod.Value], true)
 							local firstPlayerNear
@@ -3716,7 +3716,7 @@ runFunction(function()
             else
 				vapeTargetInfo.Targets.Killaura = nil
 				RunLoops:UnbindFromHeartbeat('Killaura')
-				RunLoops:UnbindFromRenderStep("AuraAttack")
+				RunLoops:UnbindFromHeartbeat("AuraAttack")
                 killauraNearPlayer = false
 				for i,v in next, (killauraboxes) do v.Adornee = nil end
 				if killauraaimcirclepart then killauraaimcirclepart.Parent = nil end
