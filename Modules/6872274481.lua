@@ -13017,7 +13017,7 @@ runLunar(function()
 				task.spawn(function()
 					repeat task.wait()
 						if modulescheck() == nil then
-							workspace.Gravity = GravityValue.Value
+							workspace.Gravity = GravityValue.Vallue
 						end
 					until not GravityModule.Enabled
 				end)
@@ -13035,47 +13035,6 @@ runLunar(function()
 	})
 end)
 
-runLunar(function()    
-    local DestroyTag = false
-    local ChangeTag = false
-    local NewTag = {"7GrandDad"}
-    local TagChanger = {Enabled = false}
-    TagChanger = GuiLibrary["ObjectsThatCanBeSaved"]["UtilityWindow"]["Api"]["CreateOptionsButton"]({
-        Name = 'TagChanger',
-        HoverText = 'Changing Your Tag',
-        Function = function(callback)
-task.spawn(function()
-                    repeat task.wait()
-                            if DestroyTag then
-                                game.Players.LocalPlayer.Character.Head.Nametag.Enabled = false
-                            end
-                            if ChangeTag then
-                                game.Players.LocalPlayer.Character.Head.Nametag.DisplayNameContainer.DisplayName.Text = NewTag
-		            end
-                    until not TagChanger.Enabled
-                end)
-            else
-                lplr.Character.Head.Nametag.DisplayNameContainer.DisplayName.Text = lplr.DisplayName
-                lplr.Character.Head.Nametag = true
-            end
-        end,
-        Default = false
-    })
-    DestroyTag = TagChanger.CreateToggle({
-        Name = "Remove Tag",
-        Default = false,
-        Function = function(callback)
-            DestroyTag = callback
-        end,
-    })
-    ChangeTag = TagChanger.CreateTextBox({
-        Name = 'Change NameTag',
-        TempText = '7GrandDad',
-        FocusLost = function(enter)
-            NewTag = enter
-        end,
-    })
-end)
 
 runLunar(function()
 	local VerticalClip = {}
