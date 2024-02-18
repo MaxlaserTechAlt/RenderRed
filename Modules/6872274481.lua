@@ -13036,19 +13036,46 @@ runLunar(function()
 end)
 
 runLunar(function()	
-	TagEraser = GuiLibrary["ObjectsThatCanBeSaved"]["UtilityWindow"]["Api"]["CreateOptionsButton"]({
-		Name = 'TagEraser',
-        HoverText = 'Removes your nametag',
+	local DestroyTag = false
+	local ChangeTag = false
+	local NewTag = "7GrandDad"
+	local TagChanger = {Enabled = false}
+	TagChanger = GuiLibrary["ObjectsThatCanBeSaved"]["UtilityWindow"]["Api"]["CreateOptionsButton"]({
+		Name = 'TagChanger',
+        HoverText = 'Changing Your Tag',
 		Function = function(callback)
 			if callback then
 				task.spawn(function()
 					repeat task.wait()
-						pcall(function() lplr.Character.Head.Nametag:Destroy() end)
-					until not TagEraser.Enabled
+						pcall(function() 
+							if DestroyTag then
+								lplr.Character.Head.Nametag = false
+							end
+							if ChangeTag then
+								lplr.Character.Head.DisplayNameContainer.DisplayName.Text = NewTag
+							end
+						end)
+					until not TagChanger.Enabled
 				end)
+			else
+				lplr.Character.Head.DisplayNameContainer.DisplayName.Text = lplr.DisplayName
+				lplr.Character.Head.Nametag = true
 			end
 		end,
         Default = false
+	})
+	DestroyTag = TagChanger.CreateToggle({
+		Name = "Remove Tag",
+		Default = false,
+		Function = function(callback)
+			DestroyTag = callback
+		end,
+	})
+	ChangeTag = TagChanger.CreateTextBox({
+		Name = 'Change NameTag',
+		FocusLost = function(enter)
+			NewTag = enter
+		end
 	})
 end)
 
@@ -13289,7 +13316,7 @@ runLunar(function()
 	})
 end)
 
-runLunar(function()
+runLunar(function() -- why u add this lol
 	local LagbackSelf = {}
 	local LagbackSelfMode = {Value = "Velocity"}
 	local LagbackSelfPart = {Value = "Root"}
@@ -14240,144 +14267,3 @@ runFunction(function()
 	})
 end)
 
-runFunction(function()
-    local FastFly = {}
-    local FastFlyMode = {Value = 'Velocity'}
-	local FastFlyMode2 = {Value = 'CFrame'}
-    local FastFlyMode1 = {Value = 'Sin'}
-    local FastFlySpeed = {Value = 8}
-    local FastFlyAmplitude = {Value = 17}
-    local FastFlyFrequency = {Value = 13}
-    local FastFlyMultiplier = {Value = 1.3}
-	local ffspeed = 0
-    --[[local function charvelo(mode, meth)
-        return lplr.Character.HumanoidRootPart[mode] = lplr.Character.HumanoidRootPart[mode] + vec3(
-            lplr.Character.HumanoidRootPart[mode].X,
-            2 + math[meth](ffspeed / FastFlySpeed.Value) * FastFlyAmplitude.Value,
-            lplr.Character.HumanoidRootPart[mode].Z
-        )
-    end]]
-	local function charvelo1()
-        lplr.Character.HumanoidRootPart.Velocity = lplr.Character.HumanoidRootPart.Velocity + vec3(lplr.Character.HumanoidRootPart.Velocity.X,
-            2 + math.sin(ffspeed / FastFlySpeed.Value) * FastFlyAmplitude.Value,
-            lplr.Character.HumanoidRootPart.Velocity.Z
-        )
-    end
-	local function charvelo2()
-        lplr.Character.HumanoidRootPart.Velocity = lplr.Character.HumanoidRootPart.Velocity + vec3(
-            lplr.Character.HumanoidRootPart.Velocity.X,
-            2 + math.cos(ffspeed / FastFlySpeed.Value) * FastFlyAmplitude.Value,
-            lplr.Character.HumanoidRootPart.Velocity.Z
-        )
-    end
-	local function charcf1()
-        lplr.Character.HumanoidRootPart.CFrame = lplr.Character.HumanoidRootPart.CFrame + vec3(
-            lplr.Character.HumanoidRootPart.CFrame.X,
-            2 + math.sin(ffspeed / FastFlySpeed.Value) * FastFlyAmplitude.Value,
-            lplr.Character.HumanoidRootPart.CFrame.Z
-        )
-    end
-	local function charcf2()
-        lplr.Character.HumanoidRootPart.CFrame = lplr.Character.HumanoidRootPart.CFrame + vec3(
-            lplr.Character.HumanoidRootPart.CFrame.X,
-            2 + math.cos(ffspeed / FastFlySpeed.Value) * FastFlyAmplitude.Value,
-            lplr.Character.HumanoidRootPart.CFrame.Z
-        )
-    end
-    FastFly = GuiLibrary.ObjectsThatCanBeSaved.BlatantWindow.Api.CreateOptionsButton({
-        Name = 'FastFly',
-        HoverText = 'Flies fast',
-        Function = function(callback)
-            if callback then
-                table.insert(FastFly.Connections, runService.Heartbeat:Connect(function()
-					if not isAlive(lplr, true) then 
-						return 
-					end
-                    ffspeed = ffspeed + 1
-                    if FastFlyMode.Value == 'Velocity' then
-                        if FastFlyMode1.Value == 'Sin' then
-                            --charvelo('Velocity', 'sin')
-							charvelo1()
-                        else
-                            --charvelo('Velocity', 'cos')
-							charvelo2()
-                        end
-                    else
-                        if FastFlyMode1.Value == 'Sin' then
-                            --charvelo('CFrame', 'sin')
-							charcf1()
-                        else
-                            --charvelo('CFrame', 'cos')
-							charcf2()
-                        end
-                    end
-                    if ffspeed % FastFlyFrequency.Value == 0 then
-						if FastFlyMode2.Value == 'CFrame' then
-                        	lplr.Character.HumanoidRootPart.CFrame += lplr.Character.Humanoid.MoveDirection * (FastFlyMultiplier.Value / 10)
-						else
-							lplr.Character.HumanoidRootPart.Velocity += lplr.Character.Humanoid.MoveDirection * (FastFlyMultiplier.Value / 10)
-						end
-                    end
-                end))
-            end
-        end,
-        ExtraText = function()
-            return FastFlyMode.Value
-        end
-    })
-    FastFlyMode = FastFly.CreateDropdown({
-        Name = 'Bounce Mode',
-        List = {
-            'Velocity',
-            'CFrame'
-        },
-        Value = 'Velocity',
-        Function = function() end
-    })
-	FastFlyMode2 = FastFly.CreateDropdown({
-        Name = 'Speed Mode',
-        List = {
-			'CFrame',
-            'Velocity'
-        },
-        Value = 'CFrame',
-        Function = function() end
-    })
-    FastFlyMode1 = FastFly.CreateDropdown({
-        Name = 'Math',
-        List = {
-            'Sin',
-            'Cos'
-        },
-        Value = 'Sin',
-        Function = function() end
-    })
-    FastFlySpeed = FastFly.CreateSlider({
-        Name = 'Speed',
-        Min = 1,
-        Max = 20,
-        Value = 8,
-        Function = function() end
-    })
-    FastFlyAmplitude = FastFly.CreateSlider({
-        Name = 'Amplitude',
-        Min = 1,
-        Max = 30,
-        Value = 18,
-        Function = function() end
-    })
-    FastFlyFrequency = FastFly.CreateSlider({
-        Name = 'Frequency',
-        Min = 1,
-        Max = 20,
-        Value = 12,
-        Function = function() end
-    })
-    FastFlyMultiplier = FastFly.CreateSlider({
-        Name = 'Multiplier',
-        Min = 5,
-        Max = 20,
-        Value = 13,
-        Function = function() end
-    })
-end)
