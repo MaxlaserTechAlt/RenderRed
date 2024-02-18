@@ -12028,14 +12028,19 @@ runFunction(function()
 			updatefuncs[ViewmodelHighlight.Value](handle2, handle2:FindFirstChildWhichIsA('Highlight'))
 		end
 	end
+	local viewmodel = false
 	ViewmodelMods = GuiLibrary.ObjectsThatCanBeSaved.RenderWindow.Api.CreateOptionsButton({
 		Name = 'ViewModelMods',
 		HoverText = 'Customize the first person\nviewmodel experience.',
 		Function = function(calling)
 			if calling then 
-				local viewmodel = gameCamera:WaitForChild('Viewmodel')
-				viewmodelFunction()
-				table.insert(ViewmodelMods.Connections, viewmodel.ChildAdded:Connect(viewmodelFunction)) 
+				if viewmodel then
+					local viewmodel = gameCamera:WaitForChild('Viewmodel')
+					viewmodelFunction()
+					table.insert(ViewmodelMods.Connections, viewmodel.ChildAdded:Connect(viewmodelFunction)) 
+				else
+					warningNotification("Render", "Viewmodel is not Enabled!", 6)
+				end
 				oldviewmodelanim = bedwars.ViewmodelController.playAnimation 
 				bedwars.ViewmodelController.playAnimation = function(self, animid, details)
 					if animid == bedwars.AnimationType.FP_WALK and ViewmodelAttributes.Enabled and ViewmodelNoBob.Enabled then 
@@ -12145,6 +12150,13 @@ runFunction(function()
 			end
 		end
 	})
+	ViewmodelNoHighlight = ViewmodelMods.CreateToggle({
+		Name = 'Highlight',
+		HoverText = 'No ugly Highlight.',
+		Function = function()
+			viewmodel = callback
+		end
+	})
 	nobobdepth = ViewmodelMods.CreateSlider({
 		Name = 'Depth',
 		Min = 0,
@@ -12216,6 +12228,7 @@ runFunction(function()
 	rotationy.Object.Visible = false
 	rotationz.Object.Visible = false
 end)
+
 
 runFunction(function()
 	local ProjectileAura = {}
