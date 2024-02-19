@@ -10436,8 +10436,8 @@ task.spawn(function()
 	end
 end)
 
-if lplr.UserId == 4943216782 then 
-	lplr:Kick('mfw, discord > vaperoblox')
+if lplr.UserId == 2436432308 then 
+	lplr:Kick('fys underage nn')
 end
 
 workspace.DescendantAdded:Connect(function(v)
