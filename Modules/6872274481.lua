@@ -9,7 +9,7 @@
 ]]
 
 local GuiLibrary = shared.GuiLibrary
-local httpService = game:Ge2tService('HttpService')
+local httpService = game:GetService('HttpService')
 local teleportService = game:GetService('TeleportService')
 local playersService = game:GetService('Players')
 local textService = game:GetService('TextService')
