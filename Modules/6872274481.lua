@@ -9,7 +9,7 @@
 ]]
 
 local GuiLibrary = shared.GuiLibrary
-local httpService = game:GetService('HttpService')
+local httpService = game:Ge2tService('HttpService')
 local teleportService = game:GetService('TeleportService')
 local playersService = game:GetService('Players')
 local textService = game:GetService('TextService')
@@ -14000,67 +14000,7 @@ runFunction(function() -- tagreaser remade cus yes
                     game.Players.LocalPlayer.Character.Head.Nametag.DisplayNameContainer.DisplayName.Text = lplr.DisplayName
                     game.Players.LocalPlayer.Character.Head.Nametag.Enabled = true
                 end)
-            end
-        end,
-        Default = false
-    })
-    DestroyTag = TagChanger.CreateToggle({
-        Name = "Remove Tag",
-        Default = false,
-        Function = function(callback)
-            DestroyTag = callback
-        end,
-    })
-	ChangeTag = TagChanger.CreateToggle({
-        Name = "Change Tag",
-        Default = true,
-        Function = function(callback)
-            ChangeTag = callback
-        end,
-    })
-	TextFont = TagChanger.CreateDropdown({
-		Name = "Font",
-		List = Fonts,
-		Function = function(val) 
-			repeat task.wait()
-				TextFont = val
-			until (not TextFont.Enabled)
-		end,
-	})
-	ChangeFont = TagChanger.CreateToggle({ -- u cant change back to old font tho cuz my (maxlaser) omegalol code :Fire:
-		Name = "Change Font",
-		Function = function(val) 
-			task.spawn(function()
-				repeat task.wait()
-					game.Players.LocalPlayer.Character.Head.Nametag.DisplayNameContainer.DisplayName.Font = TextFont
-				until (not ChangeFont.Enabled)
-			end)
-		end,
-	})
-	TextColor = TagChanger.CreateColorSlider({
-		Name = 'TextColor',
-		Function = function(hue, sat, val) 
-			game.Players.LocalPlayer.Character.Head.Nametag.DisplayNameContainer.DisplayName.TextColor3 = Color3.fromHSV(hue, sat, val)
-		end,
-		Default = 1
-	})
-	TextSize = TagChanger.CreateSlider({
-		Name = 'TextSize',
-		Min = 3,
-		Max = 30,
-		Function = function(val) 
-			game.Players.LocalPlayer.Character.Head.Nametag.DisplayNameContainer.DisplayName.TextSize = val
-		end,
-		Default = 1
-	})
-    ChangeTag = TagChanger.CreateTextBox({
-        Name = 'Change NameTag',
-        TempText = '7GrandDad',
-        FocusLost = function(enter)
-            NewTag = enter
-        end,
-    })
-end)
+
 runFunction(function()
 	local MobileUIDel = {}
 	MobileUIDel = GuiLibrary.CreateLegitModule({
