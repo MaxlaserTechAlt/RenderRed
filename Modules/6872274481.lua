@@ -1,4 +1,3 @@
--- Render Custom Vape Signed File
 --[[
 
     Render Intents | Bedwars
@@ -1989,6 +1988,7 @@ runFunction(function()
 	local autoclicker = {}
 	local noclickdelay = {}
 	local autoclickercps = {GetRandomValue = function() return 1 end}
+	local verifastcik = {Value = 1}
 	local autoclickerblocks = {}
 	local autoclickertimed = {}
 	local autoclickermousedown = false
@@ -2010,6 +2010,43 @@ runFunction(function()
 		return true
 	end
 
+	local function clickAction()
+		if entityLibrary.isAlive then
+			if not autoclicker.Enabled or not autoclickermousedown then return end
+			if not isNotHoveringOverGui() then return end
+			if getOpenApps() > (bedwarsStore.equippedKit == 'hannah' and 4 or 3) then return end
+			if GuiLibrary.ObjectsThatCanBeSaved['Lobby CheckToggle'].Api.Enabled then
+				if bedwarsStore.matchState == 0 then return end
+			end
+			if bedwarsStore.localHand.Type == 'sword' then
+				if bedwars.KatanaController.chargingMaid == nil then
+					task.spawn(function()
+						while autoclickermousedown do
+							bedwars.SwordController:swingSwordAtMouse()
+							task.wait(math.max((verifastcik.Value / autoclickercps.GetRandomValue()), noclickdelay.Enabled and 0 or (autoclickertimed.Enabled and 0.38 or 0)))
+						end
+					end)
+				end
+			elseif bedwarsStore.localHand.Type == 'block' then 
+				if autoclickerblocks.Enabled and bedwars.BlockPlacementController.blockPlacer then
+					task.spawn(function()
+						while autoclickermousedown do
+							if (workspace:GetServerTimeNow() - bedwars.BlockCpsController.lastPlaceTimestamp) > ((1 / 12) * 0.5) then
+								local mouseinfo = bedwars.BlockPlacementController.blockPlacer.clientManager:getBlockSelector():getMouseInfo(0)
+								if mouseinfo then
+									if mouseinfo.placementPosition == mouseinfo.placementPosition then
+										bedwars.BlockPlacementController.blockPlacer:placeBlock(mouseinfo.placementPosition)
+									end
+								end
+								task.wait(verifastcik.Value / autoclickercps.GetRandomValue())
+							end
+						end
+					end)
+				end
+			end
+		end
+	end
+
 	autoclicker = GuiLibrary.ObjectsThatCanBeSaved.CombatWindow.Api.CreateOptionsButton({
 		Name = 'AutoClicker',
 		Function = function(calling)
@@ -2017,50 +2054,28 @@ runFunction(function()
 				table.insert(autoclicker.Connections, inputService.InputBegan:Connect(function(input, gameProcessed)
 					if input.UserInputType == Enum.UserInputType.MouseButton1 then
 						autoclickermousedown = true
-						local firstClick = tick() + 0.1
-						task.spawn(function()
-							repeat
-								task.wait()
-								if entityLibrary.isAlive then
-									if not autoclicker.Enabled or not autoclickermousedown then break end
-									if not isNotHoveringOverGui() then continue end
-									if getOpenApps() > (bedwarsStore.equippedKit == 'hannah' and 4 or 3) then continue end
-									if GuiLibrary.ObjectsThatCanBeSaved['Lobby CheckToggle'].Api.Enabled then
-										if bedwarsStore.matchState == 0 then continue end
-									end
-									if bedwarsStore.localHand.Type == 'sword' then
-										if bedwars.KatanaController.chargingMaid == nil then
-											task.spawn(function()
-												if firstClick <= tick() then
-													bedwars.SwordController:swingSwordAtMouse()
-												else
-													firstClick = tick()
-												end
-											end)
-											task.wait(math.max((1 / autoclickercps.GetRandomValue()), noclickdelay.Enabled and 0 or (autoclickertimed.Enabled and 0.38 or 0)))
-										end
-									elseif bedwarsStore.localHand.Type == 'block' then 
-										if autoclickerblocks.Enabled and bedwars.BlockPlacementController.blockPlacer and firstClick <= tick() then
-											if (workspace:GetServerTimeNow() - bedwars.BlockCpsController.lastPlaceTimestamp) > ((1 / 12) * 0.5) then
-												local mouseinfo = bedwars.BlockPlacementController.blockPlacer.clientManager:getBlockSelector():getMouseInfo(0)
-												if mouseinfo then
-													task.spawn(function()
-														if mouseinfo.placementPosition == mouseinfo.placementPosition then
-															bedwars.BlockPlacementController.blockPlacer:placeBlock(mouseinfo.placementPosition)
-														end
-													end)
-												end
-												task.wait((1 / autoclickercps.GetRandomValue()))
-											end
-										end
-									end
-								end
-							until not autoclicker.Enabled or not autoclickermousedown
-						end)
+						clickAction()
+					elseif input.UserInputType == Enum.UserInputType.Touch then
+						autoclickermousedown = true
+						clickAction()
 					end
 				end))
+
 				table.insert(autoclicker.Connections, inputService.InputEnded:Connect(function(input)
-					if input.UserInputType == Enum.UserInputType.MouseButton1 then
+					if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
+						autoclickermousedown = false
+					end
+				end))
+
+				table.insert(autoclicker.Connections, inputService.TouchStarted:Connect(function(touch, gameProcessed)
+					if touch.UserInputType == Enum.UserInputType.Touch then
+						autoclickermousedown = true
+						clickAction()
+					end
+				end))
+
+				table.insert(autoclicker.Connections, inputService.TouchEnded:Connect(function(touch)
+					if touch.UserInputType == Enum.UserInputType.Touch then
 						autoclickermousedown = false
 					end
 				end))
@@ -2071,7 +2086,7 @@ runFunction(function()
 	autoclickercps = autoclicker.CreateTwoSlider({
 		Name = 'CPS',
 		Min = 1,
-		Max = 20,
+		Max = 50,
 		Function = function(val) end,
 		Default = 8,
 		Default2 = 12
@@ -2079,6 +2094,14 @@ runFunction(function()
 	autoclickertimed = autoclicker.CreateToggle({
 		Name = 'Timed',
 		Function = function() end
+	})
+	verifastcik = autoclicker.CreateSlider({
+	  Name = 'Faster(less value)',
+	  Min = 1,
+	  Max = 10,
+	  Default = 1,
+	  Function = function() end,
+	  HoverText = 'less value = more edging'
 	})
 	autoclickerblocks = autoclicker.CreateToggle({
 		Name = 'Place Blocks', 
@@ -2139,7 +2162,7 @@ runFunction(function()
 		Function = function(calling)
 			if calling then
 				if inputService.TouchEnabled then
-					pcall(function() lplr.PlayerGui.MobileUI['2'].Visible = false end)
+					pcall(function() lplr.PlayerGui.MobileUI['3'].Visible = false end)
 				end
 				oldSprintFunction = bedwars.SprintController.stopSprinting
 				bedwars.SprintController.stopSprinting = function(...)
@@ -2157,7 +2180,7 @@ runFunction(function()
 				end)
 			else
 				if inputService.TouchEnabled then
-					pcall(function() lplr.PlayerGui.MobileUI['2'].Visible = true end)
+					pcall(function() lplr.PlayerGui.MobileUI['3'].Visible = true end)
 				end
 				bedwars.SprintController.stopSprinting = oldSprintFunction
 				bedwars.SprintController:stopSprinting()
@@ -3229,7 +3252,7 @@ runFunction(function()
 		Kit = function(a, b)
 			return (kitpriolist[a.Player:GetAttribute('PlayingAsKit')] or 0) > (kitpriolist[b.Player:GetAttribute('PlayingAsKit')] or 0)
 		end,
-		Switch = false -- :omegalol:
+		Switch = false -- can anyone explain to me what is this do :skull:
 	}
 
 	local originalNeckC0
@@ -3494,34 +3517,33 @@ runFunction(function()
 				end)
 				task.spawn(function()
 					local oldNearPlayer
-						repeat
-							task.wait()
-							
-							if killauraanimation.Enabled then
-								if killauraNearPlayer then
-									pcall(function()
-										if originalArmC0 == nil then
-											originalArmC0 = gameCamera.Viewmodel.RightHand.RightWrist.C0
-										end
-										if killauraplaying == false then
-											killauraplaying = true
-											for i,v in next, (anims[killauraanimmethod.Value]) do 
-												if (not Killaura.Enabled) or (not killauraNearPlayer) then break end
-												if not oldNearPlayer and killauraanimationtween.Enabled then
-													gameCamera.Viewmodel.RightHand.RightWrist.C0 = originalArmC0 * v.CFrame
-													continue
-												end
-												killauracurrentanim = tweenService:Create(gameCamera.Viewmodel.RightHand.RightWrist, TweenInfo.new(v.Time), {C0 = originalArmC0 * v.CFrame})
-												killauracurrentanim:Play()
-												task.wait(v.Time - 0.01)
+					repeat
+						task.wait()
+						if killauraanimation.Enabled then
+							if killauraNearPlayer then
+								pcall(function()
+									if originalArmC0 == nil then
+										originalArmC0 = gameCamera.Viewmodel.RightHand.RightWrist.C0
+									end
+									if killauraplaying == false then
+										killauraplaying = true
+										for i,v in next, (anims[killauraanimmethod.Value]) do 
+											if (not Killaura.Enabled) or (not killauraNearPlayer) then break end
+											if not oldNearPlayer and killauraanimationtween.Enabled then
+												gameCamera.Viewmodel.RightHand.RightWrist.C0 = originalArmC0 * v.CFrame
+												continue
 											end
-											killauraplaying = false
+											killauracurrentanim = tweenService:Create(gameCamera.Viewmodel.RightHand.RightWrist, TweenInfo.new(v.Time), {C0 = originalArmC0 * v.CFrame})
+											killauracurrentanim:Play()
+											task.wait(v.Time - 0.01)
 										end
-									end)	
-								end
-								oldNearPlayer = killauraNearPlayer
+										killauraplaying = false
+									end
+								end)	
 							end
-						until Killaura.Enabled == false
+							oldNearPlayer = killauraNearPlayer
+						end
+					until Killaura.Enabled == false
 				end)
 
                 oldViewmodelAnimation = bedwars.ViewmodelController.playAnimation
@@ -3604,119 +3626,119 @@ runFunction(function()
 					task.spawn(autoBlockLoop)
 				end
                 task.spawn(function()
-						RunLoops:BindToHeartbeat("AuraAttack", function()
-							vapeTargetInfo.Targets.Killaura = nil
-							local plrs = AllNearPosition(killaurarange.Value, 10, killaurasortmethods[killaurasortmethod.Value], true)
-							local firstPlayerNear
-							if #plrs > 0 then
-								local sword, swordmeta = getAttackData()
-								if sword then
-									task.spawn(switchItem, sword.tool)
-									for i, plr in next, (plrs) do
-										local root = plr.RootPart
-										if not root then 
-											continue
-										end
-										local localfacing = entityLibrary.character.HumanoidRootPart.CFrame.lookVector
-										local vec = (plr.RootPart.Position - entityLibrary.character.HumanoidRootPart.Position).unit
-										local angle = math.acos(localfacing:Dot(vec))
-										if angle >= (math.rad(killauraangle.Value) / 2) then
-											continue
-										end
-										local selfrootpos = entityLibrary.character.HumanoidRootPart.Position
-										if killauratargetframe.Walls.Enabled then
-											if not bedwars.SwordController:canSee({player = plr.Player, getInstance = function() return plr.Character end}) then continue end
-										end
-										if not ({WhitelistFunctions:GetWhitelist(plr.Player)})[2] then
-											continue
-										end
-										if not RenderFunctions:GetPlayerType(2, plr.Player) then 
-											continue
-										end
-										if killauranovape.Enabled and bedwarsStore.whitelist.clientUsers[plr.Player.Name] then
-											continue
-										end
-										if killauranorender.Enabled and table.find(RenderFunctions.configUsers, plr.Player) then
+					RunLoops:BindToHeartbeat("KillAuraAA", function()
+						vapeTargetInfo.Targets.Killaura = nil
+						local plrs = AllNearPosition(killaurarange.Value, 10, killaurasortmethods[killaurasortmethod.Value], true)
+						local firstPlayerNear
+						if #plrs > 0 then
+							local sword, swordmeta = getAttackData()
+							if sword then
+								task.spawn(switchItem, sword.tool)
+								for i, plr in next, (plrs) do
+									local root = plr.RootPart
+									if not root then 
 										continue
-										end
-										if killaurasortmethod.Value == 'Switch' or not firstPlayerNear then 
-											firstPlayerNear = true 
-											killauraNearPlayer = true
-											targetedPlayer = plr
-											vapeTargetInfo.Targets.Killaura = {
-												Humanoid = {
-													Health = (plr.Character:GetAttribute('Health') or plr.Humanoid.Health) + getShieldAttribute(plr.Character),
-													MaxHealth = plr.Character:GetAttribute('MaxHealth') or plr.Humanoid.MaxHealth
-												},
-												Player = plr.Player
-											}
-											RenderStore.UpdateTargetUI(vapeTargetInfo.Targets.Killaura)
-											if animationdelay <= tick() then
-												animationdelay = tick() + (swordmeta.sword.respectAttackSpeedForEffects and swordmeta.sword.attackSpeed or (killaurasync.Enabled and 0.24 or 0.14))
-												if not killauraswing.Enabled then 
-													bedwars.SwordController:playSwordEffect(swordmeta, false)
-												end
-												--[[if swordmeta.displayName:find('Scythe') then 
-													bedwars.ScytheController:playLocalAnimation()
-												end]]
+									end
+									local localfacing = entityLibrary.character.HumanoidRootPart.CFrame.lookVector
+									local vec = (plr.RootPart.Position - entityLibrary.character.HumanoidRootPart.Position).unit
+									local angle = math.acos(localfacing:Dot(vec))
+									if angle >= (math.rad(killauraangle.Value) / 2) then
+										continue
+									end
+									local selfrootpos = entityLibrary.character.HumanoidRootPart.Position
+									if killauratargetframe.Walls.Enabled then
+										if not bedwars.SwordController:canSee({player = plr.Player, getInstance = function() return plr.Character end}) then continue end
+									end
+									if not ({WhitelistFunctions:GetWhitelist(plr.Player)})[2] then
+										continue
+									end
+									if not RenderFunctions:GetPlayerType(2, plr.Player) then 
+										continue
+									end
+									if killauranovape.Enabled and bedwarsStore.whitelist.clientUsers[plr.Player.Name] then
+										continue
+									end
+									if killauranorender.Enabled and table.find(RenderFunctions.configUsers, plr.Player) then
+									   continue
+									end
+									if killaurasortmethod.Value == 'Switch' or not firstPlayerNear then 
+										firstPlayerNear = true 
+										killauraNearPlayer = true
+										targetedPlayer = plr
+										vapeTargetInfo.Targets.Killaura = {
+											Humanoid = {
+												Health = (plr.Character:GetAttribute('Health') or plr.Humanoid.Health) + getShieldAttribute(plr.Character),
+												MaxHealth = plr.Character:GetAttribute('MaxHealth') or plr.Humanoid.MaxHealth
+											},
+											Player = plr.Player
+										}
+										RenderStore.UpdateTargetUI(vapeTargetInfo.Targets.Killaura)
+										if animationdelay <= tick() then
+											animationdelay = tick() + (swordmeta.sword.respectAttackSpeedForEffects and swordmeta.sword.attackSpeed or (killaurasync.Enabled and 0.24 or 0.14))
+											if not killauraswing.Enabled then 
+												bedwars.SwordController:playSwordEffect(swordmeta, false)
 											end
+											--[[if swordmeta.displayName:find('Scythe') then 
+												bedwars.ScytheController:playLocalAnimation()
+											end]]
 										end
-										if (workspace:GetServerTimeNow() - bedwars.SwordController.lastAttack) < 0.02 then 
-											break
-										end
-										local selfpos = selfrootpos + (killaurarange.Value > 14 and (selfrootpos - root.Position).magnitude > 14.4 and (CFrame.lookAt(selfrootpos, root.Position).lookVector * ((selfrootpos - root.Position).magnitude - 14)) or Vector3.zero)
-										bedwars.SwordController.lastAttack = workspace:GetServerTimeNow()
-										bedwarsStore.attackReach = math.floor((selfrootpos - root.Position).magnitude * 100) / 100
-										bedwarsStore.attackReachUpdate = tick() + 1
-										killaurarealremote:FireServer({
-											weapon = sword.tool,
-											chargedAttack = {chargeRatio = swordmeta.sword.chargedAttack and bedwarsStore.queueType ~= 'bridge_duel' and not swordmeta.sword.chargedAttack.disableOnGrounded and 0.999 or 0},
-											entityInstance = plr.Character,
-											validate = {
-												raycast = {
-													cameraPosition = attackValue(root.Position), 
-													cursorDirection = attackValue(CFrame.new(selfpos, root.Position).lookVector)
-												},
-												targetPosition = attackValue(root.Position),
-												selfPosition = attackValue(selfpos)
-											}
-										})
-										if killaurasortmethod.Value ~= 'Switch' then 
-											break 
-										end
+									end
+									if (workspace:GetServerTimeNow() - bedwars.SwordController.lastAttack) < 0.02 then 
+										break
+									end
+									local selfpos = selfrootpos + (killaurarange.Value > 14 and (selfrootpos - root.Position).magnitude > 14.4 and (CFrame.lookAt(selfrootpos, root.Position).lookVector * ((selfrootpos - root.Position).magnitude - 14)) or Vector3.zero)
+									bedwars.SwordController.lastAttack = workspace:GetServerTimeNow()
+									bedwarsStore.attackReach = math.floor((selfrootpos - root.Position).magnitude * 100) / 100
+									bedwarsStore.attackReachUpdate = tick() + 1
+									killaurarealremote:FireServer({
+										weapon = sword.tool,
+										chargedAttack = {chargeRatio = swordmeta.sword.chargedAttack and bedwarsStore.queueType ~= 'bridge_duel' and not swordmeta.sword.chargedAttack.disableOnGrounded and 0.999 or 0},
+										entityInstance = plr.Character,
+										validate = {
+											raycast = {
+												cameraPosition = attackValue(root.Position), 
+												cursorDirection = attackValue(CFrame.new(selfpos, root.Position).lookVector)
+											},
+											targetPosition = attackValue(root.Position),
+											selfPosition = attackValue(selfpos)
+										}
+									})
+									if killaurasortmethod.Value ~= 'Switch' then 
+										break 
 									end
 								end
 							end
-							if not firstPlayerNear then 
-								targetedPlayer = nil
-								killauraNearPlayer = false
-								pcall(function()
-									if originalArmC0 == nil then
-										originalArmC0 = gameCamera.Viewmodel.RightHand.RightWrist.C0
+						end
+						if not firstPlayerNear then 
+							targetedPlayer = nil
+							killauraNearPlayer = false
+							pcall(function()
+								if originalArmC0 == nil then
+									originalArmC0 = gameCamera.Viewmodel.RightHand.RightWrist.C0
+								end
+								if gameCamera.Viewmodel.RightHand.RightWrist.C0 ~= originalArmC0 then
+									pcall(function()
+										killauracurrentanim:Cancel()
+									end)
+									if killauraanimationtween.Enabled then 
+										gameCamera.Viewmodel.RightHand.RightWrist.C0 = originalArmC0
+									else
+										killauracurrentanim = tweenService:Create(gameCamera.Viewmodel.RightHand.RightWrist, TweenInfo.new(custominoutspeeds[killauraanimmethod.Value] or 0.1), {C0 = originalArmC0})
+										killauracurrentanim:Play()
 									end
-									if gameCamera.Viewmodel.RightHand.RightWrist.C0 ~= originalArmC0 then
-										pcall(function()
-											killauracurrentanim:Cancel()
-										end)
-										if killauraanimationtween.Enabled then 
-											gameCamera.Viewmodel.RightHand.RightWrist.C0 = originalArmC0
-										else
-											killauracurrentanim = tweenService:Create(gameCamera.Viewmodel.RightHand.RightWrist, TweenInfo.new(custominoutspeeds[killauraanimmethod.Value] or 0.1), {C0 = originalArmC0})
-											killauracurrentanim:Play()
-										end
-									end
-								end)
-							end
-							for i,v in next, (killauraboxes) do 
-								local attacked = killauratarget.Enabled and plrs[i] or nil
-								v.Adornee = attacked and ((not killauratargethighlight.Enabled) and attacked.RootPart or (not GuiLibrary.ObjectsThatCanBeSaved.ChamsOptionsButton.Api.Enabled) and attacked.Character or nil)
-							end
-						end)
+								end
+							end)
+						end
+						for i,v in next, (killauraboxes) do 
+							local attacked = killauratarget.Enabled and plrs[i] or nil
+							v.Adornee = attacked and ((not killauratargethighlight.Enabled) and attacked.RootPart or (not GuiLibrary.ObjectsThatCanBeSaved.ChamsOptionsButton.Api.Enabled) and attacked.Character or nil)
+						end
+					end)
 				end)
             else
 				vapeTargetInfo.Targets.Killaura = nil
 				RunLoops:UnbindFromHeartbeat('Killaura')
-				RunLoops:UnbindFromHeartbeat("AuraAttack")
+				RunLoops:UnbindFromHeartbeat("KillAuraAA")
                 killauraNearPlayer = false
 				for i,v in next, (killauraboxes) do v.Adornee = nil end
 				if killauraaimcirclepart then killauraaimcirclepart.Parent = nil end
@@ -6802,7 +6824,7 @@ runFunction(function()
 	})
 end)
 
-runFunction(function()
+--[[runFunction(function()
 	local performed = false
 	GuiLibrary.ObjectsThatCanBeSaved.RenderWindow.Api.CreateOptionsButton({
 		Name = 'UICleanup',
@@ -6871,7 +6893,7 @@ runFunction(function()
 			end
 		end
 	})
-end)
+end)]]
 
 runFunction(function()
 	local AntiAFK = {}
@@ -8463,7 +8485,7 @@ runFunction(function()
 			if calling then 
 				table.insert(AutoToxic.Connections, vapeEvents.BedwarsBedBreak.Event:Connect(function(bedTable)
 					if AutoToxicBedDestroyed.Enabled and bedTable.brokenBedTeam.id == lplr:GetAttribute('Team') then
-						local custommsg = #AutoToxicPhrases6.ObjectList > 0 and AutoToxicPhrases6.ObjectList[math.random(1, #AutoToxicPhrases6.ObjectList)] or 'Who needs a bed when you got Render Red <name>? | renderintents.xyz'
+						local custommsg = #AutoToxicPhrases6.ObjectList > 0 and AutoToxicPhrases6.ObjectList[math.random(1, #AutoToxicPhrases6.ObjectList)] or 'Who needs a bed when you got Render <name>? | renderintents.xyz'
 						if custommsg then
 							custommsg = custommsg:gsub('<name>', (bedTable.player.DisplayName or bedTable.player.Name))
 						end
@@ -8494,9 +8516,9 @@ runFunction(function()
 							end
 						else
 							if killer == lplr and AutoToxicFinalKill.Enabled then 
-								local custommsg = #AutoToxicPhrases2.ObjectList > 0 and AutoToxicPhrases2.ObjectList[math.random(1, #AutoToxicPhrases2.ObjectList)] or '<name> things could have ended for you so differently, if you\'ve used Render Red. | renderintents.xyz'
+								local custommsg = #AutoToxicPhrases2.ObjectList > 0 and AutoToxicPhrases2.ObjectList[math.random(1, #AutoToxicPhrases2.ObjectList)] or '<name> things could have ended for you so differently, if you\'ve used Render. | renderintents.xyz'
 								if custommsg == lastsaid then
-									custommsg = #AutoToxicPhrases2.ObjectList > 0 and AutoToxicPhrases2.ObjectList[math.random(1, #AutoToxicPhrases2.ObjectList)] or '<name> things could have ended for you so differently, if you\'ve used Render Red. | renderintents.xyz'
+									custommsg = #AutoToxicPhrases2.ObjectList > 0 and AutoToxicPhrases2.ObjectList[math.random(1, #AutoToxicPhrases2.ObjectList)] or '<name> things could have ended for you so differently, if you\'ve used Render. | renderintents.xyz'
 								else
 									lastsaid = custommsg
 								end
@@ -8515,7 +8537,7 @@ runFunction(function()
 							sendmessage('gg')
 						end
 						if AutoToxicWin.Enabled then
-							sendmessage(#AutoToxicPhrases.ObjectList > 0 and AutoToxicPhrases.ObjectList[math.random(1, #AutoToxicPhrases.ObjectList)] or 'Render Red is simply better everyone. | renderintents.xyz')
+							sendmessage(#AutoToxicPhrases.ObjectList > 0 and AutoToxicPhrases.ObjectList[math.random(1, #AutoToxicPhrases.ObjectList)] or 'Render is simply better everyone. | renderintents.xyz')
 						end
 					end
 				end))
@@ -10069,42 +10091,7 @@ runFunction(function()
 	ReachCorner.CornerRadius = UDim.new(0, 4)
 	ReachCorner.Parent = ReachLabel
 end)
-runFunction(function()
-	local MobileUIDel = {}
-	MobileUIDel = GuiLibrary.CreateLegitModule({
-		Name = 'Remove MobileUi',
-		Function = function(calling)
-			if calling then 
-				task.spawn(function()
-				lplr.PlayerGui.MobileUI.Enabled = false
-				lplr.PlayerGui.AbilityButtons.Enabled = false
-				end)
-			else
-				task.spawn(function()
-				lplr.PlayerGui.MobileUI.Enabled = true
-				lplr.PlayerGui.AbilityButtons.Enabled = true
-				end)
-			end
-		end
-	})
-end)
-runFunction(function()
-	local EffectHud = {}
-	EffectHud = GuiLibrary.CreateLegitModule({
-		Name = 'Remove EffectHud',
-		Function = function(calling)
-			if calling then 
-			task.spawn(function()
-				lplr.PlayerGui.StatusEffectHudScreen.Enabled = false
-			end)
-			else
-			task.spawn(function()
-				lplr.PlayerGui.StatusEffectHudScreen.Enabled = true
-			end)	
-			end
-		end
-	})
-end)
+
 table.insert(vapeConnections, replicatedStorageService['events-@easy-games/game-core:shared/game-core-networking@getEvents.Events'].abilityUsed.OnClientEvent:Connect(function(character, ability)
 	local player = playersService:GetPlayerFromCharacter(character) 
 	bedwarsStore.usedAbilities[ability] = {Player = player, lastused = tick()}
@@ -12028,19 +12015,14 @@ runFunction(function()
 			updatefuncs[ViewmodelHighlight.Value](handle2, handle2:FindFirstChildWhichIsA('Highlight'))
 		end
 	end
-	local viewmodel = false
 	ViewmodelMods = GuiLibrary.ObjectsThatCanBeSaved.RenderWindow.Api.CreateOptionsButton({
 		Name = 'ViewModelMods',
 		HoverText = 'Customize the first person\nviewmodel experience.',
 		Function = function(calling)
 			if calling then 
-				if viewmodel then
-					local viewmodel = gameCamera:WaitForChild('Viewmodel')
-					viewmodelFunction()
-					table.insert(ViewmodelMods.Connections, viewmodel.ChildAdded:Connect(viewmodelFunction)) 
-				else
-					warningNotification("Render", "Viewmodel is not Enabled!", 6)
-				end
+				local viewmodel = gameCamera:WaitForChild('Viewmodel')
+				viewmodelFunction()
+				table.insert(ViewmodelMods.Connections, viewmodel.ChildAdded:Connect(viewmodelFunction)) 
 				oldviewmodelanim = bedwars.ViewmodelController.playAnimation 
 				bedwars.ViewmodelController.playAnimation = function(self, animid, details)
 					if animid == bedwars.AnimationType.FP_WALK and ViewmodelAttributes.Enabled and ViewmodelNoBob.Enabled then 
@@ -12150,13 +12132,6 @@ runFunction(function()
 			end
 		end
 	})
-	ViewmodelNoHighlight = ViewmodelMods.CreateToggle({
-		Name = 'Highlight',
-		HoverText = 'No ugly Highlight.',
-		Function = function()
-			viewmodel = callback
-		end
-	})
 	nobobdepth = ViewmodelMods.CreateSlider({
 		Name = 'Depth',
 		Min = 0,
@@ -12228,91 +12203,6 @@ runFunction(function()
 	rotationy.Object.Visible = false
 	rotationz.Object.Visible = false
 end)
-runLunar(function() -- tagreaser remade cus yes
-	local function GetFont()
-		local fonts = {}
-		for _, font in ipairs(Enum.Font:GetEnumItems()) do
-			table.insert(fonts, font.Name)
-		end
-		return fonts
-	end
-	
-	local Fonts = GetFont()
-	local ChangeFont = {}
-    local DestroyTag = false
-    local ChangeTag = false
-    local NewTag = "7GrandDad"
-	local TextFont
-    local TagChanger = {Enabled = false}
-    TagChanger = GuiLibrary["ObjectsThatCanBeSaved"]["UtilityWindow"]["Api"]["CreateOptionsButton"]({
-        Name = 'TagChanger',
-            HoverText = 'Changing Your Tag',
-        Function = function(callback)
-            if callback then
-                task.spawn(function()
-                    repeat task.wait()
-						if DestroyTag then
-							game.Players.LocalPlayer.Character.Head.Nametag.Enabled = false
-						end
-						if ChangeTag then
-							game.Players.LocalPlayer.Character.Head.Nametag.DisplayNameContainer.DisplayName.Text = NewTag
-						end
-                    until not TagChanger.Enabled
-                end)
-            else
-                task.spawn(function()
-                    game.Players.LocalPlayer.Character.Head.Nametag.DisplayNameContainer.DisplayName.Text = lplr.DisplayName
-                    game.Players.LocalPlayer.Character.Head.Nametag.Enabled = true
-                end)
-            end
-        end,
-        Default = false
-    })
-    DestroyTag = TagChanger.CreateToggle({
-        Name = "Remove Tag",
-        Default = false,
-        Function = function(callback)
-            DestroyTag = callback
-        end,
-    })
-	TextFont = TagChanger.CreateDropdown({
-		Name = "Font",
-		List = Fonts,
-		Function = function(val) 
-			TextFont = val
-		end,
-	})
-	ChangeFont = TagChanger.CreateToggle({ -- u cant change back to old font tho cuz my (maxlaser) omegalol code :Fire:
-		Name = "Change Font",
-		Function = function(val) 
-			task.spawn(function()
-				game.Players.LocalPlayer.Character.Head.Nametag.DisplayNameContainer.DisplayName.Font = TextFont
-			end)
-		end,
-	})
-	TextColor = TagChanger.CreateColorSlider({
-		Name = 'TextColor',
-		Function = function(hue, sat, val) 
-			game.Players.LocalPlayer.Character.Head.Nametag.DisplayNameContainer.DisplayName.TextColor3 = Color3.fromHSV(hue, sat, val)
-		end,
-		Default = 1
-	})
-	DestroyTag = TagChanger.CreateToggle({
-        Name = "Change Tag",
-        Default = true,
-        Function = function(callback)
-            ChangeTag = callback
-        end,
-    })
-    ChangeTag = TagChanger.CreateTextBox({
-        Name = 'Change NameTag',
-        TempText = '7GrandDad',
-        FocusLost = function(enter)
-            NewTag = enter
-        end,
-    })
-end)
-
 
 runFunction(function()
 	local ProjectileAura = {}
@@ -13101,7 +12991,7 @@ runLunar(function()
 				task.spawn(function()
 					repeat task.wait()
 						if modulescheck() == nil then
-							workspace.Gravity = GravityValue.Vallue
+							workspace.Gravity = GravityValue.Value
 						end
 					until not GravityModule.Enabled
 				end)
@@ -13119,6 +13009,22 @@ runLunar(function()
 	})
 end)
 
+runLunar(function()	
+	TagEraser = GuiLibrary["ObjectsThatCanBeSaved"]["UtilityWindow"]["Api"]["CreateOptionsButton"]({
+		Name = 'TagEraser',
+        HoverText = 'Removes your nametag',
+		Function = function(callback)
+			if callback then
+				task.spawn(function()
+					repeat task.wait()
+						pcall(function() lplr.Character.Head.Nametag:Destroy() end)
+					until not TagEraser.Enabled
+				end)
+			end
+		end,
+        Default = false
+	})
+end)
 
 runLunar(function()
 	local VerticalClip = {}
@@ -13357,7 +13263,7 @@ runLunar(function()
 	})
 end)
 
-runLunar(function() -- why u add this lol
+runLunar(function()
 	local LagbackSelf = {}
 	local LagbackSelfMode = {Value = "Velocity"}
 	local LagbackSelfPart = {Value = "Root"}
@@ -14059,6 +13965,395 @@ runLunar(function()
 	})
 end)
 
+runFunction(function() 
+	local ViewmodelMods = {}
+	local ViewmodelHighlight = {Value = 'Normal'}
+	local ViewmodelThird = {}
+	local ViewmodelMaterial = {Value = 'SmoothPlastic'}
+	local ViewmodelTransparency = {Value = 0}
+	local ViewmodelColor = {Hue = 0, Sat = 0, Value = 0}
+	local ViewmodelAttributes = {}
+	local ViewmodelNoBob = {}
+	local viewmodelstuff = {}
+	local nobobdepth = {Value = 8}
+	local nobobhorizontal = {Value = 8}
+	local nobobvertical = {Value = -2}
+	local rotationx = {Value = 0}
+	local rotationy = {Value = 0}
+	local rotationz = {Value = 0}
+	local oldviewmodelanim
+	local oldviewmodelC1
+	local updatefuncs = {
+		Normal = function(part, original) 
+			local highlight = original or Instance.new('Highlight')
+			highlight.FillColor = Color3.fromHSV(ViewmodelColor.Hue, ViewmodelColor.Sat, ViewmodelColor.Value)
+			highlight.FillTransparency = (ViewmodelTransparency.Value / 85)
+			highlight.OutlineTransparency = 1
+			highlight.DepthMode = Enum.HighlightDepthMode.AlwaysOnTop
+			highlight.Parent = part
+			table.insert(viewmodelstuff, highlight)
+			part.TextureID = ''
+			part.Material = Enum.Material[ViewmodelMaterial.Value]
+		end,
+		Classic = function(part)
+			part.TextureID = ''
+			part.Material = Enum.Material[ViewmodelMaterial.Value]
+			part.Color = Color3.fromHSV(ViewmodelColor.Hue, ViewmodelColor.Sat, ViewmodelColor.Value)
+		end
+	}
+	local function viewmodelFunction(handle)
+		local exist, handle = pcall(function()
+			return handle and handle:IsA('Part') and handle or gameCamera.Viewmodel:FindFirstChildWhichIsA('Accessory').Handle
+		end)
+		if exist then 
+			updatefuncs[ViewmodelHighlight.Value](handle, handle:FindFirstChildWhichIsA('Highlight'))
+		end
+		local exist2, handle2 = pcall(function()
+			for i,v in next, lplr.Character:GetChildren() do 
+				if v:IsA('Accessory') and v.Name == handle.Parent.Name and v:GetAttribute('InvItem') then 
+					return v.Handle
+				end
+			end
+		end)
+		if exist2 and handle2 and ViewmodelThird.Enabled and ViewmodelHighlight.Value == 'Classic' then 
+			updatefuncs[ViewmodelHighlight.Value](handle2, handle2:FindFirstChildWhichIsA('Highlight'))
+		end
+	end
+	local viewmodel = false
+	ViewmodelMods = GuiLibrary.ObjectsThatCanBeSaved.RenderWindow.Api.CreateOptionsButton({
+		Name = 'ViewModelMods',
+		HoverText = 'Customize the first person\nviewmodel experience.',
+		Function = function(calling)
+			if calling then 
+				if viewmodel then
+					local viewmodel = gameCamera:WaitForChild('Viewmodel')
+					viewmodelFunction()
+					table.insert(ViewmodelMods.Connections, viewmodel.ChildAdded:Connect(viewmodelFunction)) 
+				else
+					warningNotification("Render", "Viewmodel is not Enabled!", 6)
+				end
+				oldviewmodelanim = bedwars.ViewmodelController.playAnimation 
+				bedwars.ViewmodelController.playAnimation = function(self, animid, details)
+					if animid == bedwars.AnimationType.FP_WALK and ViewmodelAttributes.Enabled and ViewmodelNoBob.Enabled then 
+						return 
+					end 
+					return oldviewmodelanim(self, animid, details)
+				end
+				if ViewmodelAttributes.Enabled then 
+					lplr.PlayerScripts.TS.controllers.global.viewmodel['viewmodel-controller']:SetAttribute('ConstantManager_DEPTH_OFFSET', -(nobobdepth.Value / 10))
+					lplr.PlayerScripts.TS.controllers.global.viewmodel['viewmodel-controller']:SetAttribute('ConstantManager_HORIZONTAL_OFFSET', (nobobhorizontal.Value / 10))
+					lplr.PlayerScripts.TS.controllers.global.viewmodel['viewmodel-controller']:SetAttribute('ConstantManager_VERTICAL_OFFSET', (nobobvertical.Value / 10))
+					pcall(function() oldviewmodelC1 = viewmodel.RightHand.RightWrist.C1 end)
+				end
+			else
+				if oldviewmodelanim then 
+					bedwars.ViewmodelController.playAnimation = oldviewmodelanim 
+					oldviewmodelanim = nil
+				end
+				if oldviewmodelC1 then 
+					pcall(function() gameCamera.Viewmodel.RightHand.RightWrist.C1 = oldviewmodelC1 end)
+					oldviewmodelC1 = nil
+				end
+				lplr.PlayerScripts.TS.controllers.global.viewmodel['viewmodel-controller']:SetAttribute('ConstantManager_DEPTH_OFFSET', 0)
+				lplr.PlayerScripts.TS.controllers.global.viewmodel['viewmodel-controller']:SetAttribute('ConstantManager_HORIZONTAL_OFFSET', 0)
+				lplr.PlayerScripts.TS.controllers.global.viewmodel['viewmodel-controller']:SetAttribute('ConstantManager_VERTICAL_OFFSET', 0)
+				for i,v in next, viewmodelstuff do 
+					pcall(function() v:Destroy() end) 
+				end
+				table.clear(viewmodelstuff)
+			end
+		end
+	})
+	ViewmodelHighlight = ViewmodelMods.CreateDropdown({
+		Name = 'Mode',
+		List = {'Normal', 'Classic'},
+		Function = function(value)
+			pcall(function() ViewmodelThird.Object.Visible = (value ~= 'Normal') end)
+			pcall(function() ViewmodelTransparency.Visible = (value ~= 'Classic') end)
+			if ViewmodelMods.Enabled then 
+				ViewmodelMods.ToggleButton()
+				ViewmodelMods.ToggleButton() 
+			end
+		end
+	})
+	ViewmodelColor = ViewmodelMods.CreateColorSlider({
+		Name = 'Color',
+		Function = function() 
+			if ViewmodelMods.Enabled then
+			   viewmodelFunction() 
+			end
+		end
+	})
+	ViewmodelTransparency = ViewmodelMods.CreateSlider({
+		Name = 'Transparency',
+		Min = 0, 
+		Max = 85, 
+		Default = 15,
+		Function = function() 
+			if ViewmodelMods.Enabled then
+				viewmodelFunction() 
+			 end 
+		end
+	})
+	ViewmodelThird = ViewmodelMods.CreateToggle({
+		Name = 'Hand',
+		Default = true,
+		HoverText = 'Also changes the tool in third person.',
+		Function = function() 
+			if ViewmodelMods.Enabled then
+				viewmodelFunction() 
+			 end
+		end
+	})
+	ViewmodelMaterial = ViewmodelMods.CreateDropdown({
+		Name = 'Material',
+		List = GetEnumItems('Material'),
+		Function = function()
+			if ViewmodelMods.Enabled then
+				viewmodelFunction() 
+			 end 
+		end
+	})
+	ViewmodelAttributes = ViewmodelMods.CreateToggle({
+		Name = 'Attributes',
+		HoverText = 'Size & Rotations for viewmodel.',
+		Function = function(calling)
+			pcall(function() ViewmodelNoBob.Object.Visible = calling end)
+			pcall(function() nobobdepth.Object.Visible = calling end)
+			pcall(function() nobobhorizontal.Object.Visible = calling end)
+			pcall(function() nobobvertical.Object.Visible = calling end)
+			pcall(function() rotationx.Object.Visible = calling end)
+			pcall(function() rotationy.Object.Visible = calling end)
+			pcall(function() rotationz.Object.Visible = calling end)
+			if ViewmodelMods.Enabled then 
+				ViewmodelMods.ToggleButton() 
+				ViewmodelMods.ToggleButton()
+			end
+		end
+	})
+	ViewmodelNoHighlight = ViewmodelMods.CreateToggle({
+		Name = 'Highlight',
+		HoverText = 'No ugly Highlight.',
+		Function = function()
+			viewmodel = callback
+		end
+	})
+	ViewmodelNoBob = ViewmodelMods.CreateToggle({
+		Name = 'No Bobbing',
+		HoverText = 'No ugly bobbing.',
+		Function = function()
+			if ViewmodelMods.Enabled and ViewmodelAttributes.Enabled then 
+				ViewmodelMods.ToggleButton() 
+				ViewmodelMods.ToggleButton()
+			end
+		end
+	})
+	nobobdepth = ViewmodelMods.CreateSlider({
+		Name = 'Depth',
+		Min = 0,
+		Max = 24,
+		Default = 8,
+		Function = function(val)
+			if ViewmodelMods.Enabled and ViewmodelAttributes.Enabled then
+				lplr.PlayerScripts.TS.controllers.global.viewmodel['viewmodel-controller']:SetAttribute('ConstantManager_DEPTH_OFFSET', -(val / 10))
+			end
+		end
+	})
+	nobobhorizontal = ViewmodelMods.CreateSlider({
+		Name = 'Horizontal',
+		Min = 0,
+		Max = 24,
+		Default = 8,
+		Function = function(val)
+			if ViewmodelMods.Enabled and ViewmodelAttributes.Enabled then
+				lplr.PlayerScripts.TS.controllers.global.viewmodel['viewmodel-controller']:SetAttribute('ConstantManager_HORIZONTAL_OFFSET', (val / 10))
+			end
+		end
+	})
+	nobobvertical = ViewmodelMods.CreateSlider({
+		Name = 'Vertical',
+		Min = 0,
+		Max = 24,
+		Default = -2,
+		Function = function(val)
+			if ViewmodelMods.Enabled and ViewmodelAttributes.Enabled then
+				lplr.PlayerScripts.TS.controllers.global.viewmodel['viewmodel-controller']:SetAttribute('ConstantManager_VERTICAL_OFFSET', (val / 10))
+			end
+		end
+	})
+	rotationx = ViewmodelMods.CreateSlider({
+		Name = 'RotX',
+		Min = 0,
+		Max = 360,
+		Function = function(val)
+			if ViewmodelMods.Enabled and ViewmodelAttributes.Enabled then
+				gameCamera.Viewmodel.RightHand.RightWrist.C1 = oldviewmodelC1 * CFrame.Angles(math.rad(rotationx.Value), math.rad(rotationy.Value), math.rad(rotationz.Value))
+			end
+		end
+	})
+	rotationy = ViewmodelMods.CreateSlider({
+		Name = 'RotY',
+		Min = 0,
+		Max = 360,
+		Function = function(val)
+			if ViewmodelMods.Enabled and ViewmodelAttributes.Enabled then
+				gameCamera.Viewmodel.RightHand.RightWrist.C1 = oldviewmodelC1 * CFrame.Angles(math.rad(rotationx.Value), math.rad(rotationy.Value), math.rad(rotationz.Value))
+			end
+		end
+	})
+	rotationz = ViewmodelMods.CreateSlider({
+		Name = 'RotZ',
+		Min = 0,
+		Max = 360,
+		Function = function(val)
+			if ViewmodelMods.Enabled and ViewmodelAttributes.Enabled then
+				gameCamera.Viewmodel.RightHand.RightWrist.C1 = oldviewmodelC1 * CFrame.Angles(math.rad(rotationx.Value), math.rad(rotationy.Value), math.rad(rotationz.Value))
+			end
+		end
+	})
+	ViewmodelNoBob.Object.Visible = false
+	nobobdepth.Object.Visible = false
+	nobobhorizontal.Object.Visible = false
+	nobobvertical.Object.Visible = false
+	rotationx.Object.Visible = false
+	rotationy.Object.Visible = false
+	rotationz.Object.Visible = false
+end)
+runFunction(function() -- tagreaser remade cus yes
+	local function GetFont()
+		local fonts = {}
+		for _, font in ipairs(Enum.Font:GetEnumItems()) do
+			table.insert(fonts, font.Name)
+		end
+		return fonts
+	end
+	
+	local Fonts = GetFont()
+    local DestroyTag = false
+    local ChangeTag = false
+    local NewTag = "7GrandDad"
+	local ChangeFont = {Enabled = false}
+	local TextFont = {Enabled = false}
+	local TextSize = {}
+    local TagChanger = {Enabled = false}
+    TagChanger = GuiLibrary["ObjectsThatCanBeSaved"]["UtilityWindow"]["Api"]["CreateOptionsButton"]({
+        Name = 'TagChanger',
+            HoverText = 'Changing Your Tag',
+        Function = function(callback)
+            if callback then
+                task.spawn(function()
+                    repeat task.wait()
+						if DestroyTag then
+							game.Players.LocalPlayer.Character.Head.Nametag.Enabled = false
+						end
+						if ChangeTag then
+							game.Players.LocalPlayer.Character.Head.Nametag.DisplayNameContainer.DisplayName.Text = NewTag
+						end
+                    until not TagChanger.Enabled
+                end)
+            else
+                task.spawn(function()
+                    game.Players.LocalPlayer.Character.Head.Nametag.DisplayNameContainer.DisplayName.Text = lplr.DisplayName
+                    game.Players.LocalPlayer.Character.Head.Nametag.Enabled = true
+                end)
+            end
+        end,
+        Default = false
+    })
+    DestroyTag = TagChanger.CreateToggle({
+        Name = "Remove Tag",
+        Default = false,
+        Function = function(callback)
+            DestroyTag = callback
+        end,
+    })
+	ChangeTag = TagChanger.CreateToggle({
+        Name = "Change Tag",
+        Default = true,
+        Function = function(callback)
+            ChangeTag = callback
+        end,
+    })
+	TextFont = TagChanger.CreateDropdown({
+		Name = "Font",
+		List = Fonts,
+		Function = function(val) 
+			repeat task.wait()
+				TextFont = val
+			until (not TextFont.Enabled)
+		end,
+	})
+	ChangeFont = TagChanger.CreateToggle({ -- u cant change back to old font tho cuz my (maxlaser) omegalol code :Fire:
+		Name = "Change Font",
+		Function = function(val) 
+			task.spawn(function()
+				repeat task.wait()
+					game.Players.LocalPlayer.Character.Head.Nametag.DisplayNameContainer.DisplayName.Font = TextFont
+				until (not ChangeFont.Enabled)
+			end)
+		end,
+	})
+	TextColor = TagChanger.CreateColorSlider({
+		Name = 'TextColor',
+		Function = function(hue, sat, val) 
+			game.Players.LocalPlayer.Character.Head.Nametag.DisplayNameContainer.DisplayName.TextColor3 = Color3.fromHSV(hue, sat, val)
+		end,
+		Default = 1
+	})
+	TextSize = TagChanger.CreateSlider({
+		Name = 'TextSize',
+		Min = 3,
+		Max = 30,
+		Function = function(val) 
+			game.Players.LocalPlayer.Character.Head.Nametag.DisplayNameContainer.DisplayName.TextSize = val
+		end,
+		Default = 1
+	})
+    ChangeTag = TagChanger.CreateTextBox({
+        Name = 'Change NameTag',
+        TempText = '7GrandDad',
+        FocusLost = function(enter)
+            NewTag = enter
+        end,
+    })
+end)
+runFunction(function()
+	local MobileUIDel = {}
+	MobileUIDel = GuiLibrary.CreateLegitModule({
+		Name = 'Remove MobileUi',
+		Function = function(calling)
+			if calling then 
+				task.spawn(function()
+					lplr.PlayerGui.MobileUI.Enabled = false
+					lplr.PlayerGui.AbilityButtons.Enabled = false
+				end)
+			else
+				task.spawn(function()
+					lplr.PlayerGui.MobileUI.Enabled = true
+					lplr.PlayerGui.AbilityButtons.Enabled = true
+				end)
+			end
+		end
+	})
+end)
+runFunction(function()
+	local EffectHud = {}
+	EffectHud = GuiLibrary.CreateLegitModule({
+		Name = 'Remove EffectHud',
+		Function = function(calling)
+			if calling then 
+				task.spawn(function()
+					lplr.PlayerGui.StatusEffectHudScreen.Enabled = false
+				end)
+			else
+				task.spawn(function()
+					lplr.PlayerGui.StatusEffectHudScreen.Enabled = true
+				end)	
+			end
+		end
+	})
+end)
+
 runLunar(function()
 	local CustomAttack = {}
 	local CustomAttackMode = {Value = 'Spin'}
@@ -14308,3 +14603,162 @@ runFunction(function()
 	})
 end)
 
+runFunction(function()
+    local FastFly = {}
+    local FastFlyMode = {Value = 'Velocity'}
+	local FastFlyMode2 = {Value = 'CFrame'}
+    local FastFlyMode1 = {Value = 'Sin'}
+    local FastFlySpeed = {Value = 8}
+    local FastFlyAmplitude = {Value = 17}
+    local FastFlyFrequency = {Value = 13}
+    local FastFlyMultiplier = {Value = 1.3}
+	local ffspeed = 0
+    --[[local function charvelo(mode, meth)
+        return lplr.Character.HumanoidRootPart[mode] = lplr.Character.HumanoidRootPart[mode] + vec3(
+            lplr.Character.HumanoidRootPart[mode].X,
+            2 + math[meth](ffspeed / FastFlySpeed.Value) * FastFlyAmplitude.Value,
+            lplr.Character.HumanoidRootPart[mode].Z
+        )
+    end]]
+	local function charvelo1()
+        lplr.Character.HumanoidRootPart.Velocity = lplr.Character.HumanoidRootPart.Velocity + vec3(lplr.Character.HumanoidRootPart.Velocity.X,
+            2 + math.sin(ffspeed / FastFlySpeed.Value) * FastFlyAmplitude.Value,
+            lplr.Character.HumanoidRootPart.Velocity.Z
+        )
+    end
+	local function charvelo2()
+        lplr.Character.HumanoidRootPart.Velocity = lplr.Character.HumanoidRootPart.Velocity + vec3(
+            lplr.Character.HumanoidRootPart.Velocity.X,
+            2 + math.cos(ffspeed / FastFlySpeed.Value) * FastFlyAmplitude.Value,
+            lplr.Character.HumanoidRootPart.Velocity.Z
+        )
+    end
+	local function charcf1()
+        lplr.Character.HumanoidRootPart.CFrame = lplr.Character.HumanoidRootPart.CFrame + vec3(
+            lplr.Character.HumanoidRootPart.CFrame.X,
+            2 + math.sin(ffspeed / FastFlySpeed.Value) * FastFlyAmplitude.Value,
+            lplr.Character.HumanoidRootPart.CFrame.Z
+        )
+    end
+	local function charcf2()
+        lplr.Character.HumanoidRootPart.CFrame = lplr.Character.HumanoidRootPart.CFrame + vec3(
+            lplr.Character.HumanoidRootPart.CFrame.X,
+            2 + math.cos(ffspeed / FastFlySpeed.Value) * FastFlyAmplitude.Value,
+            lplr.Character.HumanoidRootPart.CFrame.Z
+        )
+    end
+    FastFly = GuiLibrary.ObjectsThatCanBeSaved.BlatantWindow.Api.CreateOptionsButton({
+        Name = 'FastFly',
+        HoverText = 'Flies fast',
+        Function = function(callback)
+            if callback then
+                table.insert(FastFly.Connections, runService.Heartbeat:Connect(function()
+					if not isAlive(lplr, true) then 
+						return 
+					end
+                    ffspeed = ffspeed + 1
+                    if FastFlyMode.Value == 'Velocity' then
+                        if FastFlyMode1.Value == 'Sin' then
+                            --charvelo('Velocity', 'sin')
+							charvelo1()
+                        else
+                            --charvelo('Velocity', 'cos')
+							charvelo2()
+                        end
+                    else
+                        if FastFlyMode1.Value == 'Sin' then
+                            --charvelo('CFrame', 'sin')
+							charcf1()
+                        else
+                            --charvelo('CFrame', 'cos')
+							charcf2()
+                        end
+                    end
+                    if ffspeed % FastFlyFrequency.Value == 0 then
+						if FastFlyMode2.Value == 'CFrame' then
+                        	lplr.Character.HumanoidRootPart.CFrame += lplr.Character.Humanoid.MoveDirection * (FastFlyMultiplier.Value / 10)
+						else
+							lplr.Character.HumanoidRootPart.Velocity += lplr.Character.Humanoid.MoveDirection * (FastFlyMultiplier.Value / 10)
+						end
+                    end
+                end))
+            end
+        end,
+        ExtraText = function()
+            return FastFlyMode.Value
+        end
+    })
+    FastFlyMode = FastFly.CreateDropdown({
+        Name = 'Bounce Mode',
+        List = {
+            'Velocity',
+            'CFrame'
+        },
+        Value = 'Velocity',
+        Function = function() end
+    })
+	FastFlyMode2 = FastFly.CreateDropdown({
+        Name = 'Speed Mode',
+        List = {
+			'CFrame',
+            'Velocity'
+        },
+        Value = 'CFrame',
+        Function = function() end
+    })
+    FastFlyMode1 = FastFly.CreateDropdown({
+        Name = 'Math',
+        List = {
+            'Sin',
+            'Cos'
+        },
+        Value = 'Sin',
+        Function = function() end
+    })
+    FastFlySpeed = FastFly.CreateSlider({
+        Name = 'Speed',
+        Min = 1,
+        Max = 20,
+        Value = 8,
+        Function = function() end
+    })
+    FastFlyAmplitude = FastFly.CreateSlider({
+        Name = 'Amplitude',
+        Min = 1,
+        Max = 30,
+        Value = 18,
+        Function = function() end
+    })
+    FastFlyFrequency = FastFly.CreateSlider({
+        Name = 'Frequency',
+        Min = 1,
+        Max = 20,
+        Value = 12,
+        Function = function() end
+    })
+    FastFlyMultiplier = FastFly.CreateSlider({
+        Name = 'Multiplier',
+        Min = 5,
+        Max = 20,
+        Value = 13,
+        Function = function() end
+    })
+end)
+
+runFunction(function()
+	local Notif = {Enabled = false}
+	local fake = {
+		"Added Mobile support to Autoclick, Autoclick now works on Mobile"
+	}
+	Notif = GuiLibrary.ObjectsThatCanBeSaved.CombatWindow.Api.CreateOptionsButton({
+		Name = 'Update Notification',
+		Function = function(callback)
+			if callback then																																																																																																																																																																																																																																																																																																																																																																																																										
+				for _, message in pairs(fake) do
+					warningNotification('Update', message, 2)
+				end
+				Notif.ToggleButton(false)																																																																																																																																																																																																																																																																																																																																																																																																											
+			end
+		end
+	})
+end)
