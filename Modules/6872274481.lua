@@ -13983,12 +13983,16 @@ runFunction(function() -- tagreaser remade cus yes
             if callback then
                 task.spawn(function()
                     repeat task.wait()
-						if DestroyTag then
-							game.Players.LocalPlayer.Character.Head.Nametag.Enabled = false
-						end
-						if ChangeTag then
-							game.Players.LocalPlayer.Character.Head.Nametag.DisplayNameContainer.DisplayName.Text = NewTag
-						end
+						task.spawn(function()
+							if DestroyTag then
+								game.Players.LocalPlayer.Character.Head.Nametag.Enabled = false
+							end
+						end)
+						task.spawn(function()
+							if ChangeTag then
+								game.Players.LocalPlayer.Character.Head.Nametag.DisplayNameContainer.DisplayName.Text = NewTag
+							end
+						end)
                     until not TagChanger.Enabled
                 end)
             else
