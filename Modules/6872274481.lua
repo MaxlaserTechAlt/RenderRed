@@ -5129,6 +5129,8 @@ runFunction(function()
 	})
 end)
 
+print("i hate niggers")															
+													
 runFunction(function()
 	local BedESP = {}
 	local BedESPFolder = Instance.new('Folder')
