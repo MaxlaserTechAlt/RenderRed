@@ -12228,6 +12228,90 @@ runFunction(function()
 	rotationy.Object.Visible = false
 	rotationz.Object.Visible = false
 end)
+runLunar(function() -- tagreaser remade cus yes
+	local function GetFont()
+		local fonts = {}
+		for _, font in ipairs(Enum.Font:GetEnumItems()) do
+			table.insert(fonts, font.Name)
+		end
+		return fonts
+	end
+	
+	local Fonts = GetFont()
+	local ChangeFont = {}
+    local DestroyTag = false
+    local ChangeTag = false
+    local NewTag = "7GrandDad"
+	local TextFont
+    local TagChanger = {Enabled = false}
+    TagChanger = GuiLibrary["ObjectsThatCanBeSaved"]["UtilityWindow"]["Api"]["CreateOptionsButton"]({
+        Name = 'TagChanger',
+            HoverText = 'Changing Your Tag',
+        Function = function(callback)
+            if callback then
+                task.spawn(function()
+                    repeat task.wait()
+						if DestroyTag then
+							game.Players.LocalPlayer.Character.Head.Nametag.Enabled = false
+						end
+						if ChangeTag then
+							game.Players.LocalPlayer.Character.Head.Nametag.DisplayNameContainer.DisplayName.Text = NewTag
+						end
+                    until not TagChanger.Enabled
+                end)
+            else
+                task.spawn(function()
+                    game.Players.LocalPlayer.Character.Head.Nametag.DisplayNameContainer.DisplayName.Text = lplr.DisplayName
+                    game.Players.LocalPlayer.Character.Head.Nametag.Enabled = true
+                end)
+            end
+        end,
+        Default = false
+    })
+    DestroyTag = TagChanger.CreateToggle({
+        Name = "Remove Tag",
+        Default = false,
+        Function = function(callback)
+            DestroyTag = callback
+        end,
+    })
+	TextFont = TagChanger.CreateDropdown({
+		Name = "Font",
+		List = Fonts,
+		Function = function(val) 
+			TextFont = val
+		end,
+	})
+	ChangeFont = TagChanger.CreateToggle({ -- u cant change back to old font tho cuz my (maxlaser) omegalol code :Fire:
+		Name = "Change Font",
+		Function = function(val) 
+			task.spawn(function()
+				game.Players.LocalPlayer.Character.Head.Nametag.DisplayNameContainer.DisplayName.Font = TextFont
+			end)
+		end,
+	})
+	TextColor = TagChanger.CreateColorSlider({
+		Name = 'TextColor',
+		Function = function(hue, sat, val) 
+			game.Players.LocalPlayer.Character.Head.Nametag.DisplayNameContainer.DisplayName.TextColor3 = Color3.fromHSV(hue, sat, val)
+		end,
+		Default = 1
+	})
+	DestroyTag = TagChanger.CreateToggle({
+        Name = "Change Tag",
+        Default = true,
+        Function = function(callback)
+            ChangeTag = callback
+        end,
+    })
+    ChangeTag = TagChanger.CreateTextBox({
+        Name = 'Change NameTag',
+        TempText = '7GrandDad',
+        FocusLost = function(enter)
+            NewTag = enter
+        end,
+    })
+end)
 
 
 runFunction(function()
