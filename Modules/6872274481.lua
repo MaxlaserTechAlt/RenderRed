@@ -1046,12 +1046,16 @@ runFunction(function()
                 task.spawn(function()
                     repeat 
                         task.wait()
-
+                        replicatedStorageService["events-@easy-games/game-core:shared/game-core-networking@getEvents.Events"].useAbility:FireServer("dash", {
+                            direction = Vector3.new(-0.6831099390983582, -0.49336275458335876, -0.5384737849235535),
+                            origin = entityLibrary.character.HumanoidRootPart.CFrame.p,
+                            weapon = "wood_dao"
+                        })
                     until (not EarDestroyer.Enabled)
                 end)
             end
         end,
-        HoverText = 'Crashing All People in the game'
+        HoverText = 'Also Destroy your Ear :troll:'
     })
 --	Type = Transform.CreateDropdown({
 	--	Name = 'RemoteType',
