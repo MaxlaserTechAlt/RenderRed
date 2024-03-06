@@ -1,1 +1,1 @@
-{"default":{"Selected":true,"Keybind":""},"Render White":{"Keybind":""}}
+{"Closet Cheating":{"Selected":false,"Keybind":""},"default":{"Keybind":"","Selected":false},"Blatant":{"Keybind":"","Selected":true}}
