@@ -1,4 +1,5 @@
 
+
 runFunction(function()
 	local function whitelistFunction(plr)
 		repeat task.wait() until RenderFunctions.WhitelistLoaded
