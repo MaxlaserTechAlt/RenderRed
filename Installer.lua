@@ -1,1 +1,1 @@
-game.Players.LocalPlayer:Kick("Render Red Is Currently Down For New Update Right Now :)")
+game.Players.LocalPlayer:Kick("Render Red Is Currently Down For New Update Right Now :D")
