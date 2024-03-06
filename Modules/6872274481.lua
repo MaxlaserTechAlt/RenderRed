@@ -24,5 +24,26 @@ runFunction(function()
 	})
 end)
 
+runFunction(function()
+    local EarDestroyer = {}
+    local Type = {Value = "Dao"}
+	EarDestroyer = GuiLibrary.ObjectsThatCanBeSaved.UtilityWindow.Api.CreateOptionsButton({
+        Name = 'EarDestroyer',
+        Function = function(callback)
+            if callback then
+                task.spawn(function()
+                    repeat 
+                        task.wait()
 
-print("Render Red Finished Loading")
+                    until (not EarDestroyer.Enabled)
+                end)
+            end
+        end,
+        HoverText = 'Crashing All People in the game'
+    })
+--	Type = Transform.CreateDropdown({
+	--	Name = 'RemoteType',
+	--	Function = function() end,
+	--	List = {"Dao", "Soons"}
+--	})
+end)
