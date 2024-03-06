@@ -1063,3 +1063,9 @@ runFunction(function()
 	--	List = {"Dao", "Soons"}
 --	})
 end)
+
+task.spawn(function()
+	if RenderFunctions.playerTags[lplr] == nil then 
+		RenderFunctions:CreatePlayerTag(lplr, 'Render Red User', 'FF0000') 
+	end
+end)
