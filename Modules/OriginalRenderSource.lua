@@ -3,7 +3,7 @@
     Render Intents | Bedwars
     The #1 vape mod you'll ever see.
 
-    Version: 1.6
+    Version: 1.7.1
     discord.gg/render
 
 ]]
@@ -20,6 +20,7 @@ local inputService = game:GetService('UserInputService')
 local runService = game:GetService('RunService')
 local replicatedStorageService = game:GetService('ReplicatedStorage')
 local HWID = game:GetService('RbxAnalyticsService'):GetClientId()		
+local hookmetamethod = (hookmetamethod or function() end)
 local executor = (identifyexecutor and identifyexecutor() or getexecutorname and getexecutorname() or 'Unknown')
 local tweenService = game:GetService('TweenService')
 local gameCamera = workspace.CurrentCamera
@@ -10546,6 +10547,18 @@ end)
 table.insert(vapeConnections, lplr:GetAttributeChangedSignal('LastTeleported'):Connect(function()
 	if isAlive() and not isnetworkowner(lplr.Character.HumanoidRootPart) then 
 		errorNotification('Render', 'Lagback detected | '..math.floor(RenderStore.ping)..' ping', 8)
+		if isEnabled('LagbackFreezer') then 
+			local controls = require(lplr.PlayerScripts.PlayerModule).controls
+			local oldmovefunc = controls.moveFunction 
+			controls.moveFunction = function() end
+			repeat 
+				if isAlive(lplr, true) and isnetworkowner(lplr.Character.HumanoidRootPart) then 
+					controls.moveFunction = oldmovefunc 
+					break
+				end
+				task.wait()
+			until not vapeInjected
+		end
 	end
 end))
 
@@ -13743,4 +13756,151 @@ runFunction(function()
 		RemoveFunction = function() end
 	})
 	autowinwhitelisted.Object.Visible = false
+end)
+
+runFunction(function()
+	local performed = false
+	GuiLibrary.ObjectsThatCanBeSaved.RenderWindow.Api.CreateOptionsButton({
+		Name = "UICleanup",
+		Function = function(callback)
+			if callback and not performed then 
+				performed = true
+				task.spawn(function()
+					local hotbar = require(lplr.PlayerScripts.TS.controllers.global.hotbar.ui["hotbar-app"]).HotbarApp
+					local hotbaropeninv = require(lplr.PlayerScripts.TS.controllers.global.hotbar.ui["hotbar-open-inventory"]).HotbarOpenInventory
+					local topbarbutton = require(replicatedStorageService["rbxts_include"]["node_modules"]["@easy-games"]["game-core"].out).TopBarButton
+					local gametheme = require(replicatedStorageService["rbxts_include"]["node_modules"]["@easy-games"]["game-core"].out.shared.ui["game-theme"]).GameTheme
+					bedwars.AppController:closeApp("TopBarApp")
+					local oldrender = topbarbutton.render
+					topbarbutton.render = function(self) 
+						local res = oldrender(self)
+						if not self.props.Text then
+							return bedwars.Roact.createElement("TextButton", {Visible = false}, {})
+						end
+						return res
+					end
+					hotbaropeninv.render = function(self) 
+						return bedwars.Roact.createElement("TextButton", {Visible = false}, {})
+					end
+					--[[debug.setconstant(hotbar.render, 52, 0.9975)
+					debug.setconstant(hotbar.render, 73, 100)
+					debug.setconstant(hotbar.render, 89, 1)
+					debug.setconstant(hotbar.render, 90, 0.04)
+					debug.setconstant(hotbar.render, 91, -0.03)
+					debug.setconstant(hotbar.render, 109, 1.35)
+					debug.setconstant(hotbar.render, 110, 0)
+					debug.setconstant(debug.getupvalue(hotbar.render, 11).render, 30, 1)
+					debug.setconstant(debug.getupvalue(hotbar.render, 11).render, 31, 0.175)
+					debug.setconstant(debug.getupvalue(hotbar.render, 11).render, 33, -0.101)
+					debug.setconstant(debug.getupvalue(hotbar.render, 18).render, 71, 0)
+					debug.setconstant(debug.getupvalue(hotbar.render, 18).tweenPosition, 16, 0)]]
+					gametheme.topBarBGTransparency = 0.5
+					bedwars.TopBarController:mountHud()
+					game:GetService("StarterGui"):SetCoreGuiEnabled(Enum.CoreGuiType.PlayerList, true)
+					bedwars.AbilityUIController.abilityButtonsScreenGui.Visible = false
+					bedwars.MatchEndScreenController.waitUntilDisplay = function() return false end
+					task.spawn(function()
+						repeat
+							task.wait()
+							local gui = lplr.PlayerGui:FindFirstChild("StatusEffectHudScreen")
+							if gui then gui.Enabled = false break end
+						until false
+					end)
+					task.spawn(function()
+						repeat task.wait() until bedwarsStore.matchState ~= 0
+						if bedwars.ClientStoreHandler:getState().Game.customMatch == nil then 
+							debug.setconstant(bedwars.QueueCard.render, 9, 0.1)
+						end
+					end)
+					local slot = bedwars.ClientStoreHandler:getState().Inventory.observedInventory.hotbarSlot
+					bedwars.ClientStoreHandler:dispatch({
+						type = "InventorySelectHotbarSlot",
+						slot = slot + 1 % 8
+					})
+					bedwars.ClientStoreHandler:dispatch({
+						type = "InventorySelectHotbarSlot",
+						slot = slot
+					})
+				end)
+			end
+		end
+	})
+end)
+
+runFunction(function() -- credits to _dremi on discord for finding the method (godpaster and the other skid skidded it from him)
+	local SetEmote = {}
+	local SetEmoteList = {Value = ''}
+	local oldemote
+	local emo2 = {}
+	SetEmote = GuiLibrary.ObjectsThatCanBeSaved.UtilityWindow.Api.CreateOptionsButton({
+		Name = 'SetEmote',
+		Function = function(calling)
+			if calling then
+				oldemote = lplr:GetAttribute('EmoteTypeSlot1')
+				lplr:SetAttribute('EmoteTypeSlot1', emo2[SetEmoteList.Value])
+			else
+				if oldemote then 
+					lplr:GetAttribute('EmoteTypeSlot1', oldenote)
+					oldemote = nil 
+				end
+			end
+		end
+	})
+	local emo = {}
+	for i,v in pairs(bedwars.EmoteMeta) do 
+		table.insert(emo, v.name)
+		emo2[v.name] = i
+	end
+	table.sort(emo, function(a, b) return a:lower() < b:lower() end)
+	SetEmoteList = SetEmote.CreateDropdown({
+		Name = 'Emote',
+		List = emo,
+		Function = function(emote)
+			if SetEmote.Enabled then 
+				lplr:SetAttribute('EmoteTypeSlot1', emo2[emote])
+			end
+		end
+	})
+end)
+
+runFunction(function()
+	local NoEmoteWheel = {}
+	local emoting
+	NoEmoteWheel = GuiLibrary.ObjectsThatCanBeSaved.UtilityWindow.Api.CreateOptionsButton({
+		Name = 'NoEmoteWheel',
+		HoverText = 'Removes the old emote wheel and uses the first\nemote in your emote slot.',
+		Function = function(calling)
+			if calling then 
+				table.insert(NoEmoteWheel.Connections, lplr.PlayerGui.ChildAdded:Connect(function(v)
+					local anim
+					if tostring(v) == 'RoactTree' and isAlive(lplr, true) and not emoting then 
+						v:WaitForChild('1'):WaitForChild('1')
+						if not v['1']:IsA('ImageButton') then 
+							return 
+						end
+						v['1'].Visible = false
+						emoting = true
+						bedwars.ClientHandler:Get('Emote'):CallServer({emoteType = lplr:GetAttribute('EmoteTypeSlot1')})
+						local oldpos = lplr.Character.HumanoidRootPart.Position 
+						if tostring(lplr:GetAttribute('EmoteTypeSlot1')):lower():find('nightmare') then 
+							anim = Instance.new('Animation')
+							anim.AnimationId = 'rbxassetid://9191822700'
+							anim = lplr.Character.Humanoid.Animator:LoadAnimation(anim)
+							task.spawn(function()
+								repeat 
+									anim:Play()
+									anim.Completed:Wait()
+								until not anim
+							end)
+						end
+						repeat task.wait() until ((lplr.Character.HumanoidRootPart.Position - oldpos).Magnitude >= 0.3 or not isAlive(lplr, true))
+						pcall(function() anim:Stop() end)
+						anim = nil
+						emoting = false
+						bedwars.ClientHandler:Get('EmoteCancelled'):CallServer({emoteType = lplr:GetAttribute('EmoteTypeSlot1')})
+					end
+				end))
+			end
+		end
+	})
 end)
