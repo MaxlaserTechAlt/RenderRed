@@ -50,7 +50,7 @@ newdialog = function(func)
     })
 end
 
-Object.Main:AddButton({
+Tabs.Main:AddButton({
     Title = "Install",
     Description = "Installs the config.",
     Callback = function()
