@@ -3,15 +3,15 @@ local win = shared.Window
 local Tabs = shared.Tab
 local RenderStore = shared.RenderStore
 
-local TweenService = RenderStore.Service.TweenService
-local plrService = RenderStore.Service.PlayerService
-local InputService = RenderStore.Service.InputService
-local lplr = RenderStore.InGame.LocalPlayer
-local replicatedStorage = RenderStore.Service.replicatedStorageService
+local TweenService = game:GetService("TweenService")
+local plrService = game:GetService("Players")
+local InputService = game:GetService("UserInputService")
+local lplr = game.Players.LocalPlayer
+local replicatedStorageService = game:GetService("ReplicatedStorage")
 
-local placeId = RenderStore.Game.PlaceId
-local jobId = RenderStore.Game.JobId
-local gameId = RenderStore.Game.GameId
+local placeId = game.PlaceId
+local jobId = game.JobId
+local gameId = game.GameId
 
 local createNotification = function() end
 local getgitHubRequest = function() end
