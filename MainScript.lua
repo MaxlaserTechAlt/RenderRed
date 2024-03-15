@@ -46,9 +46,9 @@ local RenderStore = {
 		["GameId"] = game.GameId,
 	},
 	["InGame"] = {
-		["LocalPlayer"] = RenderStore.Service.PlayerService.LocalPlayer,
-		["Health"] = RenderStore.InGame.LocalPlayer.Humanoid.Health,
-		["RootPart"] = RenderStore.InGame.LocalPlayer.HumanoidRootPart,
+		["LocalPlayer"] = game:GetService("Players").LocalPlayer,
+		["Health"] = game:GetService("Players").LocalPlayer.Humanoid.Health,
+		["RootPart"] = game:GetService("Players").LocalPlayer.HumanoidRootPart,
 	},
 }
 shared.RenderRedStore = RenderStore
