@@ -31,14 +31,14 @@ getgitHubRequest = function(url)
 	return game:HttpGet("https://raw.githubusercontent.com/MaxlaserTechAlt/RenderRed/main/"..url, true)
 end
 
-newdialog = function(func)
-    Window:Dialog({
+NewDialog = function(func)
+    win:Dialog({
         Title = "Do you want to Process This?",
         Content = "it will do what the button name said",
         Buttons = {
             {
                 Title = "Confirm",
-                Callback = func(),
+                Callback = func,
             },
             {
                 Title = "Cancel",
@@ -54,8 +54,13 @@ Tabs.Main:AddButton({
     Title = "Install",
     Description = "Installs the config.",
     Callback = function()
-        newdialog = function()
+        NewDialog = function()
             print("test")
         end
     end
 })
+
+task.spawn(function()
+    shared.upd1 = true
+    shared.InstallerLoaded = true
+end)
