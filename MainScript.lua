@@ -33,7 +33,7 @@ local Tabs = {
 }
 shared.Tab = Tabs
 
-local RenderStore = {
+--[[local RenderStore = {
 	["Service"] = {
 		["PlayerService"] = game:GetService("Players"),
 		["replicatedStorageService"] = game:GetService("ReplicatedStorage"),
@@ -52,7 +52,7 @@ local RenderStore = {
 		["RootPart"] = game:GetService("Players").LocalPlayer.Character.HumanoidRootPart,
 	},
 }
-shared.RenderRedStore = RenderStore
+shared.RenderRedStore = RenderStore]]
 
 task.spawn(function()
 	shared.MainScriptLoaded = true
