@@ -33,20 +33,20 @@ end
 
 NewDialog = function(func)
     win:Dialog({
-        Title = "Do you want to Process This?",
-        Content = "it will do what the button name said",
+        Title = "Do you Want To Process This",
+        Content = "Are you really sure?",
         Buttons = {
             {
                 Title = "Confirm",
-                Callback = func,
+                Callback = func()
             },
             {
                 Title = "Cancel",
                 Callback = function()
-                    createNotification("Render", "Dialog Canceled", 5)
-                end,
+                    createNotification("Render", "Cancelled the dialog.", 5)
+                end
             }
-         }
+        }
     })
 end
 
@@ -54,9 +54,9 @@ Tabs.Main:AddButton({
     Title = "Install",
     Description = "Installs the config.",
     Callback = function()
-        NewDialog = function()
+        NewDialog:Connect(function()
             print("test")
-        end
+        end)
     end
 })
 
