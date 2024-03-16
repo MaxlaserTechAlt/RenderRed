@@ -11,9 +11,10 @@ end
 if not isfolder("RenderRed") then
 	makefolder("RenderRed")
 end
+local RendersStore = loadstring(getgitHubRequest("Core/System.lua", true))()
+shared.RenderStore = RendersStore
 local GuiLibrary = loadstring(game:HttpGet("https://github.com/dawid-scripts/Fluent/releases/latest/download/main.lua"))()
 shared.Fluent = GuiLibrary
-
 local win = GuiLibrary:CreateWindow({
     Title = "Render Red Installer",
     SubTitle = "",
@@ -36,28 +37,6 @@ local Tabs = {
 	})
 }
 shared.Tab = Tabs
-
---[[local RenderStore = {
-	["Service"] = {
-		["PlayerService"] = game:GetService("Players"),
-		["replicatedStorageService"] = game:GetService("ReplicatedStorage"),
-		["TweenService"] = game:GetService("TweenService"),
-		["InputService"] = game:GetService("UserInputService"),
-	},
-	["Game"] = {
-		["PlaceId"] = game.PlaceId,
-		["JobId"] = game.JobId,
-		["GameId"] = game.GameId,
-	},
-	["InGame"] = {
-		["LocalPlayer"] = game:GetService("Players").LocalPlayer,
-		["Character"] = game:GetService("Players").LocalPlayer.Character,
-		["Health"] = game:GetService("Players").LocalPlayer.Character.Humanoid.Health,
-		["RootPart"] = game:GetService("Players").LocalPlayer.Character.HumanoidRootPart,
-	},
-}
-shared.RenderRedStore = RenderStore]]
-
 task.spawn(function()
 	shared.MainScriptLoaded = true
 	if not isfile("RenderRed/Installer.lua") then
