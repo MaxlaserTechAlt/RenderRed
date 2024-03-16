@@ -15,7 +15,7 @@ System.CreateKey(key)
     end
 end
 System.ReadFile(name)
-    if System.Check("FirstTime") == nil then
+    if System.Check("FirstTime") == "nil" then
         writefile(name.. ".rr", "true")
         delfile("FirstTime.json")
         writefile("FirstTime.json", "false")
