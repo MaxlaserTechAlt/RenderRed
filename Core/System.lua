@@ -4,7 +4,7 @@ if not isfile("FirstTime.json") then
     writefile("FirstTime.json", "nil")
 end
 System.Check(str)
-    return readfile(str)
+    return readfile(str)()
 end
 System.CreateKey(key)
     writefile("key-".. key)
@@ -15,7 +15,7 @@ System.CreateKey(key)
     end
 end
 System.ReadFile(name)
-    if System.Check("FirstTime") == "nil" then
+    if System.Check("FirstTime.json") == "nil" then
         writefile(name.. ".rr", "true")
         delfile("FirstTime.json")
         writefile("FirstTime.json", "false")
