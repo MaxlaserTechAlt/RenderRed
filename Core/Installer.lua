@@ -1,6 +1,5 @@
 --[[
     thanks blank for installer source (i definitely have his permission!)
-]]
 
 local createNotification = function(title,text,duration)
     game:GetService('StarterGui'):SetCore('SendNotification', ({
@@ -69,3 +68,4 @@ if shared.ExecuteOnFinished then
     getgenv().RenderDeveloper = true
     loadfile("vape/newmain.lua")()
 end
+]]
